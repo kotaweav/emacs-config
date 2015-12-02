@@ -23,6 +23,9 @@
 (add-hook 'after-init-hook 'my-after-init-hook)
 
 ;;; General Configuration
+(add-to-list 'display-buffer-alist
+             '("." nil (reusable-frames . t)))
+
 (setq enable-local-eval 't)
 
 (use-package evil
