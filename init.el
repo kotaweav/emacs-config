@@ -68,7 +68,7 @@
   :title "Basic C++ Project"
   :after-creation
   (lambda (dir)
-    (skeletor-async-shell-command "mkdir build && cd build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..")))
+    (skeletor-async-shell-command "mkdir -p cmake/Modules && mkdir build && cd build && cmake ..")))
 
 (defun my/compile ()
   (interactive)
