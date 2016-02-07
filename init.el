@@ -23,6 +23,8 @@
 (add-hook 'after-init-hook 'my-after-init-hook)
 
 ;;; General Configuration
+(setq ring-bell-function 'ignore)
+
 (add-to-list 'display-buffer-alist
              '("." nil (reusable-frames . t)))
 
