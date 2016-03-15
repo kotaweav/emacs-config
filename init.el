@@ -55,6 +55,10 @@
 (use-package multi-term
   :ensure t)
 
+(use-package highlight-symbol
+  :ensure t)
+(add-hook 'prog-mode-hook 'highlight-symbol-mode)
+
 ;;; Org Configuration
 (setq org-log-done 'time)
 
