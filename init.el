@@ -92,6 +92,11 @@
 (use-package cmake-mode
   :ensure t)
 
+;;; ERC Configuration
+(require 'erc)
+(add-to-list 'erc-modules 'notifications)
+(erc-update-modules)
+
 ;;; Global Programming Modes
 (use-package smartparens
   :ensure t)
