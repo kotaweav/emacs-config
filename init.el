@@ -74,6 +74,7 @@
 
 (skeletor-define-template "basic-cpp"
   :title "Basic C++ Project"
+  :no-license? t
   :after-creation
   (lambda (dir)
     (skeletor-async-shell-command "mkdir -p cmake/Modules && mkdir build && cd build && cmake ..")))
