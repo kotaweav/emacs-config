@@ -71,6 +71,7 @@
 (use-package helm-projectile
   :ensure t)
 (helm-projectile-on)
+(global-set-key (kbd "C-c p p") 'my/compile)
 
 (skeletor-define-template "basic-cpp"
   :title "Basic C++ Project"
@@ -216,6 +217,13 @@
 (eval-after-load 'company
   '(add-to-list
     'company-backends '(company-robe)))
+
+;;; Python Mode
+(use-package company-jedi
+  :ensure t)
+(defun my-python-mode-hook ()
+  (add-to-list 'company-backends 'company-jedi))
+(add-hook 'python-mode-hook 'my-python-mode-hook)
 
 ;;; Markdown Mode
 (use-package markdown-mode
