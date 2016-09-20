@@ -1,6 +1,6 @@
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                          ("marmalade" . "https://marmalade-repo.org/packages/")
-                         ("melpa" . "http://melpa.org/packages/")))
+                         ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
 
 (when (not (package-installed-p 'use-package)) (package-refresh-contents) (package-install 'use-package))
@@ -239,3 +239,6 @@
        :hline (concat alignment "|")
        :lstart "| " :lend " |" :sep " | ")))
     (orgtbl-to-generic table (org-combine-plists params2 params))))
+
+;;; Start server
+(server-start)
