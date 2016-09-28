@@ -33,6 +33,7 @@
 (use-package evil
   :ensure t)
 (evil-mode 1)
+(setq evil-want-fine-undo t)
 
 (use-package dired+
   :ensure t)
