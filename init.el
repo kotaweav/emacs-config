@@ -226,6 +226,9 @@
   (add-to-list 'company-backends 'company-jedi))
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
+;;; Web Technologies
+(setq js-indent-level 2)
+
 ;;; Markdown Mode
 (use-package markdown-mode
   :ensure t)
