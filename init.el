@@ -245,4 +245,6 @@
     (orgtbl-to-generic table (org-combine-plists params2 params))))
 
 ;;; Start server
-(server-start)
+(if (and (fboundp 'server-running-p)
+         (not (server-running-p)))
+    (server-start))
