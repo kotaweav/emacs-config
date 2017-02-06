@@ -8,7 +8,7 @@
 
 (require 'cl) ; to compensate for a bug in prog-mode in Emacs 24.5
 
-;; Appearance Settings
+;;; Appearance Settings
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (use-package darcula-theme
