@@ -67,6 +67,8 @@
       (kill-sexp -1)
       (insert (format "%S" value))))
 
+(put 'narrow-to-region 'disabled nil)
+
 ;;; Org Configuration
 (setq org-log-done 'time)
 
