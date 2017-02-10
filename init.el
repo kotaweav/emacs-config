@@ -62,6 +62,11 @@
 
 ;;; Org Configuration
 (setq org-log-done 'time)
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((python . t)))
+(setq org-src-fontify-natively t)
+(setq org-time-clocksum-use-effort-durations t)
 
 ;;; Project Configuration
 (use-package skeletor
@@ -248,3 +253,4 @@
 (if (and (fboundp 'server-running-p)
          (not (server-running-p)))
     (server-start))
+(put 'narrow-to-region 'disabled nil)
