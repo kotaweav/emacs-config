@@ -60,6 +60,15 @@
   :ensure t)
 (add-hook 'prog-mode-hook 'highlight-symbol-mode)
 
+; from http://stackoverflow.com/questions/3035337/in-emacs-can-you-evaluate-an-emacs-lisp-expression-and-replace-it-with-the-resul
+(defun replace-last-sexp ()
+    (interactive)
+    (let ((value (eval (preceding-sexp))))
+      (kill-sexp -1)
+      (insert (format "%S" value))))
+
+(put 'narrow-to-region 'disabled nil)
+
 ;;; Org Configuration
 (setq org-log-done 'time)
 (org-babel-do-load-languages
