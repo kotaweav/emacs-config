@@ -262,4 +262,3 @@
 (if (and (fboundp 'server-running-p)
          (not (server-running-p)))
     (server-start))
-(put 'narrow-to-region 'disabled nil)
