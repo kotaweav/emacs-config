@@ -267,6 +267,11 @@
        :lstart "| " :lend " |" :sep " | ")))
     (orgtbl-to-generic table (org-combine-plists params2 params))))
 
+;;; ROS Options
+(add-to-list 'auto-mode-alist '("\\.urdf\\'" . nxml-mode))
+(add-to-list 'auto-mode-alist '("\\.xacro\\'" . nxml-mode))
+(add-to-list 'auto-mode-alist '("\\.launch\\'" . nxml-mode))
+
 ;;; Start server
 (if (and (fboundp 'server-running-p)
          (not (server-running-p)))
