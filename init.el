@@ -30,6 +30,15 @@
 
 (setq enable-local-eval 't)
 
+(setq
+   backup-by-copying t      ; don't clobber symlinks
+   backup-directory-alist
+    '(("." . "~/.saves"))    ; don't litter my fs tree
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t) ; use versioned backups  
+
 (use-package evil
   :ensure t)
 (evil-mode 1)
@@ -71,6 +80,11 @@
 
 ;;; Org Configuration
 (setq org-log-done 'time)
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((python . t)))
+(setq org-src-fontify-natively t)
+(setq org-time-clocksum-use-effort-durations t)
 
 ;;; Project Configuration
 (use-package skeletor
