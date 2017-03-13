@@ -69,6 +69,8 @@
   :ensure t)
 (add-hook 'term-mode-hook (lambda()
                             (yas-minor-mode -1)))
+(set-face-foreground 'term-color-blue "deep sky blue")
+
 (defun rename-term (name)
   (interactive "s")
   (rename-buffer (concat "*term* " name)))
