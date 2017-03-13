@@ -88,7 +88,9 @@
 (setq org-log-done 'time)
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((python . t)))
+ '((python . t)
+   (ditaa . t)
+   (latex . t)))
 (setq org-src-fontify-natively t)
 (setq org-time-clocksum-use-effort-durations t)
 
