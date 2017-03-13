@@ -63,9 +63,15 @@
 (setq helm-split-window-in-side-p t)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-x b") 'helm-buffers-list)
 
 (use-package multi-term
   :ensure t)
+(add-hook 'term-mode-hook (lambda()
+                            (yas-minor-mode -1)))
+(defun rename-term (name)
+  (interactive "s")
+  (rename-buffer (concat "*term* " name)))
 
 (use-package highlight-symbol
   :ensure t)
@@ -84,7 +90,9 @@
 (setq org-log-done 'time)
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((python . t)))
+ '((python . t)
+   (ditaa . t)
+   (latex . t)))
 (setq org-src-fontify-natively t)
 (setq org-time-clocksum-use-effort-durations t)
 (setq org-html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/htmlize.css\"/>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css\"/>\n\n<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js\"></script>\n<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.js\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js\"></script>")
