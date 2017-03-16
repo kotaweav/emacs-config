@@ -202,7 +202,8 @@
   (define-key irony-mode-map [remap completion-at-point]
     'irony-completion-at-point-async)
   (define-key irony-mode-map [remap complete-symbol]
-    'irony-completion-at-point-async))
+    'irony-completion-at-point-async)
+  (when projectile-project-name (irony-cdb-json-add-compile-commands-path projectile-project-root (concat projectile-project-root "/build/compile-commands.json"))))
 (add-hook 'irony-mode-hook 'my-irony-mode-hook)
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 (add-hook 'c++-mode-hook 'flycheck-mode)
