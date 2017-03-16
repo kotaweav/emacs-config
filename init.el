@@ -8,7 +8,7 @@
 
 (require 'cl) ; to compensate for a bug in prog-mode in Emacs 24.5
 
-;; Appearance Settings
+;;; Appearance Settings
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (use-package darcula-theme
@@ -29,6 +29,17 @@
              '("." nil (reusable-frames . t)))
 
 (setq enable-local-eval 't)
+
+(setq
+   backup-by-copying t      ; don't clobber symlinks
+   backup-directory-alist
+    '(("." . "~/.saves"))    ; don't litter my fs tree
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t) ; use versioned backups  
+
+(set-default 'tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/ssh:%h:"))))
 
 (use-package evil
   :ensure t)
@@ -52,16 +63,56 @@
 (setq helm-split-window-in-side-p t)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-x b") 'helm-buffers-list)
 
 (use-package multi-term
   :ensure t)
+(add-hook 'term-mode-hook (lambda()
+                            (yas-minor-mode -1)))
+(set-face-foreground 'term-color-blue "deep sky blue")
+
+(defun rename-term (name)
+  (interactive "s")
+  (rename-buffer (concat "*term* " name)))
 
 (use-package highlight-symbol
   :ensure t)
 (add-hook 'prog-mode-hook 'highlight-symbol-mode)
 
+; from http://stackoverflow.com/questions/3035337/in-emacs-can-you-evaluate-an-emacs-lisp-expression-and-replace-it-with-the-resul
+(defun replace-last-sexp ()
+    (interactive)
+    (let ((value (eval (preceding-sexp))))
+      (kill-sexp -1)
+      (insert (format "%S" value))))
+
+(defun uniquify-all-lines-region (start end)
+  "find duplicate lines in region start to end keeping first occurance."
+  (interactive "*r")
+  (save-excursion
+    (let ((lines) (end (copy-marker end)))
+      (goto-char start)
+      (while (and (< (point) (marker-position end))
+                  (not (eobp)))
+        (let ((line (buffer-substring-no-properties
+                     (line-beginning-position) (line-end-position))))
+          (if (member line lines)
+              (delete-region (point) (progn(forward-line 1) (point)))
+            (push line lines)
+            (forward-line 1)))))))
+
+(put 'narrow-to-region 'disabled nil)
+
 ;;; Org Configuration
 (setq org-log-done 'time)
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((python . t)
+   (ditaa . t)
+   (latex . t)))
+(setq org-src-fontify-natively t)
+(setq org-time-clocksum-use-effort-durations t)
+(setq org-html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/htmlize.css\"/>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css\"/>\n\n<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js\"></script>\n<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.js\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js\"></script>")
 
 ;;; Project Configuration
 (use-package skeletor
@@ -244,6 +295,11 @@
        :hline (concat alignment "|")
        :lstart "| " :lend " |" :sep " | ")))
     (orgtbl-to-generic table (org-combine-plists params2 params))))
+
+;;; ROS Options
+(add-to-list 'auto-mode-alist '("\\.urdf\\'" . nxml-mode))
+(add-to-list 'auto-mode-alist '("\\.xacro\\'" . nxml-mode))
+(add-to-list 'auto-mode-alist '("\\.launch\\'" . nxml-mode))
 
 ;;; Start server
 (if (and (fboundp 'server-running-p)
