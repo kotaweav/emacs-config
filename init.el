@@ -301,6 +301,42 @@
 (add-to-list 'auto-mode-alist '("\\.xacro\\'" . nxml-mode))
 (add-to-list 'auto-mode-alist '("\\.launch\\'" . nxml-mode))
 
+;;; Media and Entertainment
+(defun spotify-toggle-play-pause ()
+  (interactive)
+  (dbus-call-method-asynchronously
+   :session "org.mpris.MediaPlayer2.spotify"
+   "/org/mpris/MediaPlayer2"
+   "org.mpris.MediaPlayer2.Player" "PlayPause" 'nil))
+
+(defun spotify-pause()
+  (interactive)
+  (dbus-call-method-asynchronously
+   :session "org.mpris.MediaPlayer2.spotify"
+   "/org/mpris/MediaPlayer2"
+   "org.mpris.MediaPlayer2.Player" "Pause" 'nil))
+
+(defun spotify-play()
+  (interactive)
+  (dbus-call-method-asynchronously
+   :session "org.mpris.MediaPlayer2.spotify"
+   "/org/mpris/MediaPlayer2"
+   "org.mpris.MediaPlayer2.Player" "Play" 'nil))
+
+(defun spotify-next()
+  (interactive)
+  (dbus-call-method-asynchronously
+   :session "org.mpris.MediaPlayer2.spotify"
+   "/org/mpris/MediaPlayer2"
+   "org.mpris.MediaPlayer2.Player" "Next" 'nil))
+
+(defun spotify-previous()
+  (interactive)
+  (dbus-call-method-asynchronously
+   :session "org.mpris.MediaPlayer2.spotify"
+   "/org/mpris/MediaPlayer2"
+   "org.mpris.MediaPlayer2.Player" "Previous" 'nil))
+
 ;;; Start server
 (if (and (fboundp 'server-running-p)
          (not (server-running-p)))
