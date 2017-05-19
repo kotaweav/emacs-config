@@ -337,6 +337,10 @@
    "/org/mpris/MediaPlayer2"
    "org.mpris.MediaPlayer2.Player" "Previous" 'nil))
 
+(global-set-key (kbd "C-c <home>") 'spotify-toggle-play-pause)
+(global-set-key (kbd "C-c <prior>") 'spotify-next)
+(global-set-key (kbd "C-c <insert>") 'spotify-previous)
+
 ;;; Start server
 (if (and (fboundp 'server-running-p)
          (not (server-running-p)))
