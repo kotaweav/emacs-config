@@ -18,7 +18,9 @@
 (setq inhibit-startup-screen t)
 
 (defun my-after-init-hook ()
-  (find-file "~/org/work.org")
+  (if (file-directory-p "~/org/org-docs")
+      (find-file "~/org/org-docs/index.org")
+    (find-file "~/org/work.org"))
   (show-all))
 (add-hook 'after-init-hook 'my-after-init-hook)
 
@@ -105,14 +107,28 @@
 
 ;;; Org Configuration
 (setq org-log-done 'time)
+(use-package plantuml-mode
+  :ensure t
+  :init
+  (setq plantuml-jar-path "/usr/share/plantuml/plantuml.jar")
+  (setq org-plantuml-jar-path plantuml-jar-path))
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((python . t)
    (ditaa . t)
+   (plantuml . t)
    (latex . t)))
+(add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+(setq org-confirm-babel-evaluate nil)
 (setq org-src-fontify-natively t)
 (setq org-time-clocksum-use-effort-durations t)
 (setq org-html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/htmlize.css\"/>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css\"/>\n\n<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js\"></script>\n<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.js\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js\"></script>")
+(setq org-latex-inputenc-alist '(("utf8" . "utf8x")))
+
+(defun my/org-mode-hook ()
+  (visual-line-mode)
+  (adaptive-wrap-prefix-mode))
+(add-hook 'org-mode-hook 'my/org-mode-hook)
 
 ;;; Project Configuration
 (use-package skeletor
@@ -166,6 +182,7 @@
 (use-package yasnippet
   :ensure t)
 (yas-global-mode 1)
+(setq yas-expand-only-for-last-commands '(self-insert-command))
 
 (use-package company
   :ensure t)
@@ -279,6 +296,9 @@
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
 ;;; Web Technologies
+(use-package web-mode
+  :ensure t)
+(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
 (setq js-indent-level 2)
 
 ;;; Markdown Mode
@@ -338,8 +358,11 @@
    "org.mpris.MediaPlayer2.Player" "Previous" 'nil))
 
 (global-set-key (kbd "C-c <home>") 'spotify-toggle-play-pause)
+(global-set-key (kbd "<XF86AudioPlay>") 'spotify-toggle-play-pause)
 (global-set-key (kbd "C-c <prior>") 'spotify-next)
+(global-set-key (kbd "<XF86AudioNext>") 'spotify-next)
 (global-set-key (kbd "C-c <insert>") 'spotify-previous)
+(global-set-key (kbd "<XF86AudioPrev>") 'spotify-previous)
 
 ;;; Start server
 (if (and (fboundp 'server-running-p)
