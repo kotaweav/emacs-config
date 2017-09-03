@@ -364,6 +364,16 @@
 (global-set-key (kbd "C-c <insert>") 'spotify-previous)
 (global-set-key (kbd "<XF86AudioPrev>") 'spotify-previous)
 
+(use-package pdf-tools
+  :ensure t)
+
+(when (not (package-installed-p 'pdf-tools))
+  (package-refresh-contents)
+  (package-install 'use-package)
+  (require 'pdf-tools)
+  (pdf-tools-install))
+(add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
+
 ;;; Start server
 (if (and (fboundp 'server-running-p)
          (not (server-running-p)))
