@@ -300,6 +300,11 @@
   :ensure t)
 (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
 (setq js-indent-level 2)
+(add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
+(use-package company-tern
+  :ensure t
+  :init
+  (add-to-list 'company-backends 'company-tern))
 
 ;;; Markdown Mode
 (use-package markdown-mode
