@@ -321,6 +321,7 @@
 (use-package web-mode
   :ensure t)
 (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+(setq web-mode-engines-alist '(("hugo" . ".*hugo.*html\\'")))
 (setq js-indent-level 2)
 
 ;;; Markdown Mode
