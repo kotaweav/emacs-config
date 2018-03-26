@@ -81,6 +81,10 @@
   :ensure t)
 (add-hook 'prog-mode-hook 'highlight-symbol-mode)
 
+(use-package comment-dwim-2
+  :ensure t)
+(global-set-key (kbd "M-;") 'comment-dwim-2)
+
 ; from http://stackoverflow.com/questions/3035337/in-emacs-can-you-evaluate-an-emacs-lisp-expression-and-replace-it-with-the-resul
 (defun replace-last-sexp ()
     (interactive)
