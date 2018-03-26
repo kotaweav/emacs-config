@@ -314,6 +314,9 @@
   (add-to-list 'company-backends 'company-jedi))
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
+;;; XML
+(setq nxml-slash-auto-complete-flag t)
+
 ;;; Web Technologies
 (use-package web-mode
   :ensure t)
