@@ -280,6 +280,21 @@
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 (add-hook 'c++-mode-hook 'flycheck-mode)
 
+;;; Go Mode
+(use-package go-mode
+  :ensure t)
+
+(use-package company-go
+  :init
+  (setenv "GOPATH" (expand-file-name (concat "~/.emacs.d" "/gopkgs")))
+  (unless (executable-find "gocode") (shell-command "go get -u github.com/nsf/gocode"))
+  (setq company-go-gocode-command (expand-file-name "~/.emacs.d/gopkgs/bin/gocode"))
+  :ensure t)
+(add-hook 'go-mode-hook
+          (lambda ()
+            (set (make-local-variable 'company-backends) '(company-go))
+            (company-mode)))
+
 ;;; Ruby Mode
 (use-package rvm
   :ensure t)
