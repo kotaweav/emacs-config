@@ -54,6 +54,7 @@
   :ensure t)
 (diredp-toggle-find-file-reuse-dir 1)
 (put 'dired-find-alternate-file 'disabled nil)
+(setq dired-dwim-target t)
 
 (use-package helm
   :ensure t)
