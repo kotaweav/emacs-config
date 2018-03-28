@@ -27,6 +27,8 @@
 ;;; General Configuration
 (setq ring-bell-function 'ignore)
 
+(setq default-tab-width 4) ; set tab to appear like 4 spaces
+
 (add-to-list 'display-buffer-alist
              '("." nil (reusable-frames . t)))
 
