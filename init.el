@@ -160,6 +160,12 @@
   )
 (global-set-key (kbd "<f5>") 'my/compile)
 
+(defun my/run ()
+  (interactive)
+  (unless (string= "-" (projectile-project-name))
+      (call-interactively 'projectile-run-project)))
+(global-set-key (kbd "<f6>") 'my/run)
+
 (use-package magit
   :ensure t)
 

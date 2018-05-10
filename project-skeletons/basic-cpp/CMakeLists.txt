@@ -10,6 +10,6 @@ set(SRC
 add_executable(__PROJECT-NAME__ ${SRC})
 
 add_custom_target(run
-  COMMAND __PROEJCT-NAME__
+  COMMAND __PROJECT-NAME__
   DEPENDS __PROJECT-NAME__
   WORKING_DIRECTORY ${CMAKE_PROJECT_DIR})
