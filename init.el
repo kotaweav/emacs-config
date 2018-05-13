@@ -275,7 +275,7 @@
   (if (file-directory-p "~/.emacs.d/.lsp/cquery")
       (shell-command "cd ~/.emacs.d/.lsp && git pull origin master")
     (shell-command "cd ~/.emacs.d/.lsp && git clone https://github.com/cquery-project/cquery --single-branch --depth=1"))
-  (shell-command "cd ~/.emacs.d/.lsp/cquery && git submodule update --init && ./waf configure build"))
+  (async-shell-command "cd ~/.emacs.d/.lsp/cquery && git submodule update --init && ./waf configure build"))
 
 (unless (file-exists-p "~/.emacs.d/.lsp/cquery/build/release/bin/cquery")
   (my-compile-cquery-server))
