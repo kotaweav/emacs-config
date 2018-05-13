@@ -199,7 +199,10 @@
 (setq yas-expand-only-for-last-commands '(self-insert-command))
 
 (use-package company
-  :ensure t)
+  :ensure t
+  :config
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 1))
 (use-package company-quickhelp
   :ensure t)
 (add-hook 'after-init-hook 'global-company-mode)
