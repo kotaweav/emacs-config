@@ -270,30 +270,36 @@
 
 ;;; C++ Mode
 
-(use-package irony
-  :ensure t)
-(use-package company-irony
-  :ensure t)
-(use-package company-irony-c-headers
-  :ensure t)
-(use-package flycheck-irony
-  :ensure t)
-(eval-after-load 'company
-  '(add-to-list
-    'company-backends '(company-irony-c-headers company-irony)))
-(eval-after-load 'flycheck
-  '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+(defun my-compile-cquery-server ()
+  (make-directory "~/.emacs.d/.lsp" t)
+  (if (file-directory-p "~/.emacs.d/.lsp/cquery")
+      (shell-command "cd ~/.emacs.d/.lsp && git pull origin master")
+    (shell-command "cd ~/.emacs.d/.lsp && git clone https://github.com/cquery-project/cquery --single-branch --depth=1"))
+  (shell-command "cd ~/.emacs.d/.lsp/cquery && git submodule update --init && ./waf configure build"))
 
-(add-hook 'c++-mode-hook 'irony-mode)
+(unless (file-exists-p "~/.emacs.d/.lsp/cquery/build/release/bin/cquery")
+  (my-compile-cquery-server))
+
+(defun my-cpp-link-compile-commands ()
+  (unless (file-exists-p (concat projectile-cached-project-root "compile-commands.json"))
+    (shell-command (concat "cd " projectile-cached-project-root " && ln -s " projectile-cached-project-root "build/compile_commands.json " projectile-cached-project-root "compile_commands.json"))))
+
+(use-package cquery
+  :ensure t
+  :config
+  (setq cquery-executable "~/.emacs.d/.lsp/cquery/build/release/bin/cquery"))
+
+(use-package company-lsp
+  :ensure t)
+(push 'company-lsp company-backends)
+
+(add-hook 'c++-mode-hook 'lsp-cquery-enable)
 (defun my-irony-mode-hook ()
   (define-key irony-mode-map [remap completion-at-point]
     'irony-completion-at-point-async)
   (define-key irony-mode-map [remap complete-symbol]
     'irony-completion-at-point-async)
   (when projectile-project-name (irony-cdb-json-add-compile-commands-path projectile-project-root (concat projectile-project-root "/build/compile-commands.json"))))
-(add-hook 'irony-mode-hook 'my-irony-mode-hook)
-(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-(add-hook 'c++-mode-hook 'flycheck-mode)
 
 ;;; Go Mode
 (use-package go-mode
