@@ -27,6 +27,8 @@
 ;;; General Configuration
 (setq ring-bell-function 'ignore)
 
+(setq default-tab-width 4) ; set tab to appear like 4 spaces
+
 (add-to-list 'display-buffer-alist
              '("." nil (reusable-frames . t)))
 
@@ -52,6 +54,7 @@
   :ensure t)
 (diredp-toggle-find-file-reuse-dir 1)
 (put 'dired-find-alternate-file 'disabled nil)
+(setq dired-dwim-target t)
 
 (use-package helm
   :ensure t)
@@ -67,6 +70,7 @@
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "C-x b") 'helm-buffers-list)
 
+(setenv "TERM" "xterm-256color")
 (use-package multi-term
   :ensure t)
 (add-hook 'term-mode-hook (lambda()
@@ -211,12 +215,14 @@
 (setq-default indent-tabs-mode nil)
 
 ;;; Compilation Mode
-(ignore-errors
-  (require 'ansi-color)
-  (defun my-colorize-compilation-buffer ()
-    (when (eq major-mode 'compilation-mode)
-      (ansi-color-apply-on-region compilation-filter-start (point-max))))
-  (add-hook 'compilation-filter-hook 'my-colorize-compilation-buffer))
+(require 'ansi-color)
+(defun colorize-compilation-buffer ()
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region (point-min) (point-max))))
+(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+
+(setq ansi-color-names-vector ["black" "red3" "green3" "yellow3" "deep sky blue" "magenta3" "cyan3" "gray80"])
+(setq ansi-color-map (ansi-color-make-color-map))
 
 ;;; Arduino Mode
 (use-package arduino-mode
