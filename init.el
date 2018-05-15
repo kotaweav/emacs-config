@@ -89,6 +89,7 @@
   :ensure t)
 (global-set-key (kbd "M-;") 'comment-dwim-2)
 
+(global-set-key (kbd "C-c i") 'clone-indirect-buffer)
 ; from http://stackoverflow.com/questions/3035337/in-emacs-can-you-evaluate-an-emacs-lisp-expression-and-replace-it-with-the-resul
 (defun replace-last-sexp ()
     (interactive)
