@@ -99,12 +99,14 @@
     (save-restriction
       (clone-indirect-buffer new-buff-name t)
       (narrow-to-region beg end))))
+(global-set-key (kbd "C-c n") 'narrow-and-rename-region)
 
 (defun narrow-and-rename-defun (new-buff-name)
   (interactive "s")
   (save-restriction
     (clone-indirect-buffer new-buff-name t)
     (narrow-to-defun)))
+(global-set-key (kbd "C-c d") 'narrow-and-rename-defun)
 
 (defun narrow-and-rename-page (new-buff-name)
   (interactive "s")
