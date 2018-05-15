@@ -90,6 +90,28 @@
 (global-set-key (kbd "M-;") 'comment-dwim-2)
 
 (global-set-key (kbd "C-c i") 'clone-indirect-buffer)
+
+(defun narrow-and-rename-region (new-buff-name)
+  (interactive "s")
+  (let ((beg (region-beginning))
+        (end (region-end)))
+    (deactivate-mark)
+    (save-restriction
+      (clone-indirect-buffer new-buff-name t)
+      (narrow-to-region beg end))))
+
+(defun narrow-and-rename-defun (new-buff-name)
+  (interactive "s")
+  (save-restriction
+    (clone-indirect-buffer new-buff-name t)
+    (narrow-to-defun)))
+
+(defun narrow-and-rename-page (new-buff-name)
+  (interactive "s")
+  (save-restriction
+    (clone-indirect-buffer new-buff-name t)
+    (narrow-to-page)))
+
 ; from http://stackoverflow.com/questions/3035337/in-emacs-can-you-evaluate-an-emacs-lisp-expression-and-replace-it-with-the-resul
 (defun replace-last-sexp ()
     (interactive)
