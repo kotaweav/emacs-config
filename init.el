@@ -316,6 +316,11 @@
   :ensure t)
 (push 'company-lsp company-backends)
 
+(use-package lsp-ui
+  :ensure t)
+(add-hook 'lsp-mode-hook 'lsp-ui-mode)
+(add-hook 'c++-mode-hook 'flycheck-mode)
+
 (add-hook 'c++-mode-hook 'lsp-cquery-enable)
 (defun my-irony-mode-hook ()
   (define-key irony-mode-map [remap completion-at-point]
