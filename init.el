@@ -233,7 +233,7 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (company-quickhelp-mode 1)
 
-; TODO: this section should be removed once all machines are running emacs > 2.5!!
+; TODO: this section should be removed once all machines are running emacs > 25!!
 (if (> emacs-major-version 25)
     (use-package company-box
       :ensure t
