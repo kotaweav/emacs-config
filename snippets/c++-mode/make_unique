@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: make_unique
+# key: mup
+# --
+std::make_unique<${T}>(${Args...});
