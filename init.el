@@ -233,6 +233,12 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (company-quickhelp-mode 1)
 
+; TODO: this section should be removed once all machines are running emacs > 2.5!!
+(if (> emacs-major-version 25)
+    (use-package company-box
+      :ensure t
+      :hook (company-mode . company-box-mode)))
+
 (defun my-create-newline-and-enter-sexp (&rest _ignored)
   "Open a new brace or bracket expression, with relevant newlines and indent. "
   (newline)
