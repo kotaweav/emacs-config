@@ -322,7 +322,7 @@
   (if (file-directory-p "~/.emacs.d/.lsp/cquery")
       (shell-command "cd ~/.emacs.d/.lsp && git pull origin master")
     (shell-command "cd ~/.emacs.d/.lsp && git clone https://github.com/cquery-project/cquery --single-branch --depth=1"))
-  (async-shell-command "cd ~/.emacs.d/.lsp/cquery && git submodule update --init && ./waf configure build"))
+  (async-shell-command "cd ~/.emacs.d/.lsp/cquery && git submodule update --init && mkdir -p ~/.emacs.d/.lsp/cquery/build && cd ~/.emacs.d/.lsp/cquery/build && cmake .. -DCMAKE_BUILD_TYPE=release -DCMAKE_INSTALL_PREFIX=release -DCMAKE_EXPORT_COMPILE_COMMANDS=YES && make install -j10"))
 
 (unless (file-exists-p "~/.emacs.d/.lsp/cquery/build/release/bin/cquery")
   (my-compile-cquery-server))
