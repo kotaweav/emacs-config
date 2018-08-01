@@ -8,6 +8,11 @@
 
 (require 'cl) ; to compensate for a bug in prog-mode in Emacs 24.5
 
+;; set local package locations
+(unless (file-directory-p "~/.emacs.d/lisp")
+  (make-directory "~/.emacs.d/lisp"))
+(add-to-list 'load-path "~/.emacs.d/lisp")
+
 ;;; Appearance Settings
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -50,8 +55,13 @@
 (evil-mode 1)
 (setq evil-want-fine-undo t)
 
-(use-package dired+
-  :ensure t)
+;; TODO: dired+
+(unless (file-exists-p "~/.emacs.d/lisp/dired+.el")
+  (progn
+    (require 'url)
+    (url-copy-file "https://www.emacswiki.org/emacs/download/dired%2b.el"
+		   "~/.emacs.d/lisp/dired+.el")))
+(load "dired+")
 (diredp-toggle-find-file-reuse-dir 1)
 (put 'dired-find-alternate-file 'disabled nil)
 (setq dired-dwim-target t)
