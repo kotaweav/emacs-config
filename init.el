@@ -317,24 +317,24 @@
 
 ;;; C++ Mode
 
-(defun my-compile-cquery-server ()
+(defun my-compile-ccls-server ()
   (make-directory "~/.emacs.d/.lsp" t)
-  (if (file-directory-p "~/.emacs.d/.lsp/cquery")
-      (shell-command "cd ~/.emacs.d/.lsp && git pull origin master")
-    (shell-command "cd ~/.emacs.d/.lsp && git clone https://github.com/cquery-project/cquery --single-branch --depth=1"))
-  (async-shell-command "cd ~/.emacs.d/.lsp/cquery && git submodule update --init && mkdir -p ~/.emacs.d/.lsp/cquery/build && cd ~/.emacs.d/.lsp/cquery/build && cmake .. -DCMAKE_BUILD_TYPE=release -DCMAKE_INSTALL_PREFIX=release -DCMAKE_EXPORT_COMPILE_COMMANDS=YES && make install -j10"))
+  (if (file-directory-p "~/.emacs.d/.lsp/ccls")
+      (shell-command "cd ~/.emacs.d/.lsp/ccls && git pull origin master")
+    (shell-command "cd ~/.emacs.d/.lsp && git clone https://github.com/MaskRay/ccls --depth=1"))
+  (async-shell-command "cd ~/.emacs.d/.lsp/ccls && git submodule update --init && mkdir -p build && cd build && cmake .. && make -j10"))
 
-(unless (file-exists-p "~/.emacs.d/.lsp/cquery/build/release/bin/cquery")
-  (my-compile-cquery-server))
+(unless (file-exists-p "~/.emacs.d/.lsp/ccls/build/ccls")
+  (my-compile-ccls-server))
+
+(use-package ccls
+  :ensure t
+  :config
+  (setq ccls-executable "~/.emacs.d/.lsp/ccls/build/ccls"))
 
 (defun my-cpp-link-compile-commands ()
   (unless (file-exists-p (concat projectile-cached-project-root "compile-commands.json"))
     (shell-command (concat "cd " projectile-cached-project-root " && ln -s " projectile-cached-project-root "build/compile_commands.json " projectile-cached-project-root "compile_commands.json"))))
-
-(use-package cquery
-  :ensure t
-  :config
-  (setq cquery-executable "~/.emacs.d/.lsp/cquery/build/release/bin/cquery"))
 
 (use-package company-lsp
   :ensure t)
@@ -343,9 +343,10 @@
 (use-package lsp-ui
   :ensure t)
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+
 (add-hook 'c++-mode-hook 'flycheck-mode)
 
-(add-hook 'c++-mode-hook 'lsp-cquery-enable)
+(add-hook 'c++-mode-hook 'lsp-ccls-enable)
 (defun my-irony-mode-hook ()
   (define-key irony-mode-map [remap completion-at-point]
     'irony-completion-at-point-async)
