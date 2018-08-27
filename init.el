@@ -192,7 +192,7 @@
   :no-license? t
   :after-creation
   (lambda (dir)
-    (skeletor-async-shell-command "mkdir -p cmake/Modules && mkdir build && cd build && cmake ..")))
+    (skeletor-async-shell-command "mkdir -p cmake/Modules && mkdir build && cd build && cmake .. && cd .. && ln -sr build/compile_commands.json .")))
 
 (defun my/compile ()
   (interactive)
