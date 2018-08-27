@@ -18,3 +18,5 @@ games
 bookmarks
 /lisp/
 /custom.el
+/session.*
+/network-security.data
