@@ -308,7 +308,7 @@
   (c-set-offset 'innamespace [0])
   (c-set-offset 'arglist-intro '+)
   (c-set-offset 'arglist-close 0)
-  (hl-todo-mode)
+  ;; (hl-todo-mode)
   ; A bug causes this to not work correctly
   ; (set (make-local-variable 'comment-auto-fill-only-comments) t)
   ; (auto-fill-mode t)
