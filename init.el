@@ -171,16 +171,22 @@
 (setq org-html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/htmlize.css\"/>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css\"/>\n\n<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js\"></script>\n<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.js\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js\"></script>")
 (setq org-latex-inputenc-alist '(("utf8" . "utf8x")))
 
+(use-package adaptive-wrap
+  :ensure t)
 (defun my/org-mode-hook ()
   (visual-line-mode)
-  (adaptive-wrap-prefix-mode))
+  (org-indent-mode t))
 (add-hook 'org-mode-hook 'my/org-mode-hook)
 
 ;;; Project Configuration
 (use-package skeletor
   :ensure t)
 (use-package projectile
-  :ensure t)
+  :ensure t
+  :config
+  (setq projectile-globally-ignored-directories
+        (append '(".cquery_cached_index" ".ccls-cache")
+        projectile-globally-ignored-directories)))
 (projectile-global-mode)
 (use-package helm-projectile
   :ensure t)
