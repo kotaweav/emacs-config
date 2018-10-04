@@ -29,6 +29,22 @@
   (show-all))
 (add-hook 'after-init-hook 'my-after-init-hook)
 
+(use-package delight
+  :ensure t
+  :config
+  (delight '((company-box-mode nil "company-box")
+             (company-mode nil "company")
+             (yas-minor-mode nil "yasnippet")
+             (smartparens-mode nil "smartparens")
+             (helm-mode nil "helm")
+             (flyspell-mode nil "flyspell")
+             (undo-tree-mode nil "undo-tree")
+             (highlight-symbol-mode nil "highlight-symbol")
+             (flycheck-mode nil "flycheck")
+             (lsp-mode nil "lsp-mode")
+             (eldoc-mode nil "eldoc")
+             (abbrev-mode nil "abbrev"))))
+
 ;;; General Configuration
 (setq ring-bell-function 'ignore)
 
