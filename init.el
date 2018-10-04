@@ -231,6 +231,21 @@
   )
 (global-set-key (kbd "<f5>") 'my/compile)
 
+
+;; send notifications for compilation success and failure
+(defun my/compilation-finish-function (status code msg)
+  (if (and (eq status 'exit) (zerop code))
+           (notifications-notify
+            :title "Compilation success"
+            :body msg
+            :app-icon "~/.emacs.d/resources/icons/checkmark.png")
+      (notifications-notify
+       :title "Compilation failure"
+       :body msg
+       :app-icon "~/.emacs.d/resources/icons/cross.png"))
+  (cons msg code))
+(setq compilation-exit-message-function 'my/compilation-finish-function)
+
 (defun my/run ()
   (interactive)
   (unless (string= "-" (projectile-project-name))
