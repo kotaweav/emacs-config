@@ -167,6 +167,13 @@
 
 (put 'narrow-to-region 'disabled nil)
 
+;;; LaTeX Configuration
+(defun my-latex-mode-hook ()
+  (visual-line-mode)
+  (flyspell-mode)
+  (flyspell-buffer))
+(add-hook 'latex-mode-hook 'my-latex-mode-hook)
+
 ;;; Org Configuration
 (setq org-log-done 'time)
 (use-package plantuml-mode
