@@ -207,14 +207,15 @@
 (use-package projectile
   :ensure t
   :config
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (setq projectile-globally-ignored-directories
         (append '(".cquery_cached_index" ".ccls-cache")
         projectile-globally-ignored-directories)))
 (projectile-global-mode)
+(setq projectile-completion-system 'helm)
 (use-package helm-projectile
   :ensure t)
 (helm-projectile-on)
-(global-set-key (kbd "C-c p p") 'my/compile)
 
 (skeletor-define-template "basic-cpp"
   :title "Basic C++ Project"
