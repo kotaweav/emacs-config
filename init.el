@@ -215,6 +215,7 @@
 (use-package projectile
   :ensure t
   :config
+  (setq projectile-switch-project-action 'projectile-dired)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (setq projectile-globally-ignored-directories
         (append '(".cquery_cached_index" ".ccls-cache")
@@ -224,6 +225,8 @@
 (use-package helm-projectile
   :ensure t)
 (helm-projectile-on)
+(use-package helm-ag
+  :ensure t)
 
 (skeletor-define-template "basic-cpp"
   :title "Basic C++ Project"
@@ -406,6 +409,37 @@
   (define-key irony-mode-map [remap complete-symbol]
     'irony-completion-at-point-async)
   (when projectile-project-name (irony-cdb-json-add-compile-commands-path projectile-project-root (concat projectile-project-root "/build/compile-commands.json"))))
+
+;; This hack fixes indentation for C++11's "enum class" in Emacs.
+;; http://stackoverflow.com/questions/6497374/emacs-cc-mode-indentation-problem-with-c0x-enum-class/6550361#6550361
+
+(defun inside-class-enum-p (pos)
+  "Checks if POS is within the braces of a C++ \"enum class\"."
+  (ignore-errors
+    (save-excursion
+      (goto-char pos)
+      (up-list -1)
+      (backward-sexp 1)
+      (or (looking-back "enum\\s-+class\\s-+")
+          (looking-back "enum\\s-+class\\s-+\\S-+\\s-*:\\s-*")))))
+
+(defun align-enum-class (langelem)
+  (if (inside-class-enum-p (c-langelem-pos langelem))
+      0
+    (c-lineup-topmost-intro-cont langelem)))
+
+(defun align-enum-class-closing-brace (langelem)
+  (if (inside-class-enum-p (c-langelem-pos langelem))
+      '-
+    '+))
+
+(defun fix-enum-class ()
+  "Setup `c++-mode' to better handle \"class enum\"."
+  (add-to-list 'c-offsets-alist '(topmost-intro-cont . align-enum-class))
+  (add-to-list 'c-offsets-alist
+               '(statement-cont . align-enum-class-closing-brace)))
+
+(add-hook 'c++-mode-hook 'fix-enum-class)
 
 ;;; Go Mode
 (use-package go-mode
