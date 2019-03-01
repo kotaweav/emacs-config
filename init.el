@@ -107,8 +107,16 @@
 (set-face-foreground 'term-color-blue "deep sky blue")
 
 (defun rename-term (name)
-  (interactive "s")
+  (interactive "sRename terminal to: ")
   (rename-buffer (concat "*term* " name)))
+
+(defun rename-new-term (name)
+  (interactive "sNew terminal name: ")
+  (multi-term)
+  (rename-term name))
+
+(global-set-key (kbd "s-t") 'multi-term)
+(global-set-key (kbd "s-T") 'rename-new-term)
 
 (use-package highlight-symbol
   :ensure t)
