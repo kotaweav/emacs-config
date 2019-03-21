@@ -70,6 +70,7 @@
   :ensure t)
 (evil-mode 1)
 (setq evil-want-fine-undo t)
+(evil-set-initial-state 'term-mode 'emacs)
 
 ;; TODO: dired+
 (unless (file-exists-p "~/.emacs.d/lisp/dired+.el")
@@ -101,10 +102,11 @@
 
 (setenv "TERM" "xterm-256color")
 (use-package multi-term
-  :ensure t)
-(add-hook 'term-mode-hook (lambda()
-                            (yas-minor-mode -1)))
-(set-face-foreground 'term-color-blue "deep sky blue")
+  :ensure t
+  :bind ([escape] . term-send-esc)
+  :config
+  (yas-minor-mode -1)
+  (set-face-foreground 'term-color-blue "deep sky blue"))
 
 (defun rename-term (name)
   (interactive "sRename terminal to: ")
