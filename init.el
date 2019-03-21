@@ -570,5 +570,7 @@
          (not (server-running-p)))
     (server-start))
 
+
 (setq custom-file "~/.emacs.d/custom.el")
-(load-file custom-file)
+(if (file-exists-p "~/.emacs.d/custom.el")
+    (load-file custom-file))
