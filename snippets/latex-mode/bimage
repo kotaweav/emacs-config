@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: bimage
+# key: bimage
+# --
+\includegraphics[width=$1]{$2}

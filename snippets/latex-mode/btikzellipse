@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: btikzellipse
+# key: btikzellipse
+# --
+\draw ($1,$2) ellipse ($3 and $4);

@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: bcolumns
+# key: bcolumns
+# --
+\begin{columns}
+  \column{0.5\textwidth}
+  $1
+  \column{0.5\textwidth}
+  $0
+\end{columns}

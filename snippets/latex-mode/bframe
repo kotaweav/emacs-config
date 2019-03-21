@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: bframe
+# key: bframe
+# --
+\begin{frame}
+  \frametitle{$1}
+\end{frame}

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: btikznode
+# key: btikznode
+# --
+\node[inner sep=0pt] ($1) at ($2,$3) {
+  $4
+};

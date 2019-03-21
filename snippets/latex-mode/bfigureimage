@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: bfigureimage
+# key: bfigureimage
+# --
+\begin{figure}
+\includegraphics[scale=$1]{$2}
+\caption{$3}
+\end{figure}

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: btikzpicture
+# key: btikzpicture
+# --
+\begin{tikzpicture}
+$1
+\end{tikzpicture}
