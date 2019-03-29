@@ -78,6 +78,21 @@
   (eyebrowse-mode)
   (eyebrowse-setup-opinionated-keys))
 
+(defun my/set-eyebrowse-frame-title()
+  (interactive)
+
+  (let*
+      ((window-configs (eyebrowse--get 'window-configs))
+       (current-config (assq (eyebrowse--get 'current-slot) window-configs))
+       (window-tag (car (last current-config))))
+    (message window-tag)
+    (if (= (length window-tag) 0)
+        (setq frame-title-format (concat (number-to-string (car current-config)) "@emacs"))
+      (setq frame-title-format (concat (car (last current-config)) "@emacs")))
+    (force-mode-line-update)))
+
+(add-hook 'eyebrowse-post-window-switch-hook 'my/set-eyebrowse-frame-title)
+
 (defun my/move-ws-left()
   (interactive)
   (let*
@@ -88,6 +103,11 @@
     (if (equal curr-count first-count)
         (eyebrowse-switch-to-window-config (1- first-count))
       (eyebrowse-prev-window-config nil))))
+
+(defun rename-ws(tag)
+  (interactive "MWorkspace Name: ")
+  (eyebrowse-rename-window-config (eyebrowse--get 'current-slot) tag)
+  (my/set-eyebrowse-frame-title))
 
 (defun my/move-ws-right ()
   (interactive)
