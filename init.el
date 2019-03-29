@@ -72,6 +72,37 @@
 (setq evil-want-fine-undo t)
 (evil-set-initial-state 'term-mode 'emacs)
 
+(use-package eyebrowse
+  :ensure t
+  :config
+  (eyebrowse-mode)
+  (eyebrowse-setup-opinionated-keys))
+
+(defun my/move-ws-left()
+  (interactive)
+  (let*
+      ((window-configs (eyebrowse--get 'window-configs))
+       (index (-elem-index (assq (eyebrowse--get 'current-slot) window-configs) window-configs))
+       (curr-count (car (nth index window-configs)))
+       (first-count (caar window-configs)))
+    (if (equal curr-count first-count)
+        (eyebrowse-switch-to-window-config (1- first-count))
+      (eyebrowse-prev-window-config nil))))
+
+(defun my/move-ws-right ()
+  (interactive)
+  (let*
+      ((window-configs (eyebrowse--get 'window-configs))
+       (index (-elem-index (assq (eyebrowse--get 'current-slot) window-configs) window-configs))
+       (curr-count (car (nth index window-configs)))
+       (last-count (caar (last window-configs))))
+    (if (equal curr-count last-count)
+        (eyebrowse-switch-to-window-config (1+ last-count))
+      (eyebrowse-next-window-config nil))))
+
+(define-key eyebrowse-mode-map (kbd "C-<") 'my/move-ws-left)
+(define-key eyebrowse-mode-map (kbd "C->") 'my/move-ws-right)
+
 ;; TODO: dired+
 (unless (file-exists-p "~/.emacs.d/lisp/dired+.el")
   (progn
