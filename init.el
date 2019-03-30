@@ -439,7 +439,9 @@
 (use-package ccls
   :ensure t
   :config
-  (setq ccls-executable "~/.emacs.d/.lsp/ccls/build/ccls"))
+  (setq ccls-executable "~/.emacs.d/.lsp/ccls/build/ccls")
+  :hook ((c-mode c++-mode objc-mode) .
+         (lambda () (require 'ccls) (lsp))))
 
 (defun my-cpp-link-compile-commands ()
   (unless (file-exists-p (concat projectile-cached-project-root "compile-commands.json"))
@@ -453,9 +455,6 @@
   :ensure t)
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
 
-(add-hook 'c++-mode-hook 'flycheck-mode)
-
-(add-hook 'c++-mode-hook 'lsp-ccls-enable)
 (defun my-irony-mode-hook ()
   (define-key irony-mode-map [remap completion-at-point]
     'irony-completion-at-point-async)
