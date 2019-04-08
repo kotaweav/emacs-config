@@ -28,6 +28,7 @@
     (find-file "~/org/work.org"))
   (show-all))
 (add-hook 'after-init-hook 'my-after-init-hook)
+(global-unset-key (kbd "C-x C-z")) ;; get rid of automatically suspending frame!
 
 (use-package delight
   :ensure t
