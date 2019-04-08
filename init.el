@@ -64,8 +64,6 @@
    kept-old-versions 2
    version-control t) ; use versioned backups  
 
-(set-default 'tramp-default-proxies-alist (quote ((".*" "\\`root\\'" "/ssh:%h:"))))
-
 (use-package evil
   :ensure t)
 (evil-mode 1)
