@@ -134,6 +134,11 @@
 (define-key eyebrowse-mode-map (kbd "C-<") 'my/move-ws-left)
 (define-key eyebrowse-mode-map (kbd "C->") 'my/move-ws-right)
 
+(add-hook 'prog-mode-hook #'hs-minor-mode)
+
+(define-key hs-minor-mode-map (kbd "C-c h h") 'hs-hide-block)
+(define-key hs-minor-mode-map (kbd "C-c h s") 'hs-show-block)
+
 ;; TODO: dired+
 (unless (file-exists-p "~/.emacs.d/lisp/dired+.el")
   (progn
