@@ -347,6 +347,9 @@
 
 (use-package magit
   :ensure t)
+(use-package magit-todos
+  :ensure t)
+(magit-todos-mode t)
 
 (use-package cmake-mode
   :ensure t)
