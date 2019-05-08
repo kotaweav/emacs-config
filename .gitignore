@@ -20,3 +20,6 @@ bookmarks
 /custom.el
 /session.*
 /network-security.data
+/transient/
+/.vterm/
+.lsp-session*
