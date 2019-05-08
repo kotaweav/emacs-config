@@ -459,7 +459,7 @@
   (if (file-directory-p "~/.emacs.d/.lsp/ccls")
       (shell-command "cd ~/.emacs.d/.lsp/ccls && git pull origin master")
     (shell-command "cd ~/.emacs.d/.lsp && git clone https://github.com/MaskRay/ccls --depth=1"))
-  (async-shell-command "cd ~/.emacs.d/.lsp/ccls && git submodule update --init && mkdir -p build && cd build && cmake .. && make -j10"))
+  (async-shell-command "cd ~/.emacs.d/.lsp/ccls && git submodule update --init && mkdir -p build && cd build && cmake .. && make -j"))
 
 (unless (file-exists-p "~/.emacs.d/.lsp/ccls/build/ccls")
   (my-compile-ccls-server))
