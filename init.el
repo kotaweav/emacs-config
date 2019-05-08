@@ -139,14 +139,6 @@
 (define-key hs-minor-mode-map (kbd "C-c h h") 'hs-hide-block)
 (define-key hs-minor-mode-map (kbd "C-c h s") 'hs-show-block)
 
-;; TODO: dired+
-(unless (file-exists-p "~/.emacs.d/lisp/dired+.el")
-  (progn
-    (require 'url)
-    (url-copy-file "https://www.emacswiki.org/emacs/download/dired%2b.el"
-		   "~/.emacs.d/lisp/dired+.el")))
-(load "dired+")
-(diredp-toggle-find-file-reuse-dir 1)
 (put 'dired-find-alternate-file 'disabled nil)
 (setq dired-dwim-target t)
 
