@@ -167,16 +167,36 @@
   (yas-minor-mode -1)
   (set-face-foreground 'term-color-blue "deep sky blue"))
 
+(defun my-compile-libvterm ()
+  (make-directory "~/.emacs.d/.vterm" t)
+  (if (file-directory-p "~/.emacs.d/.vterm/emacs-libvterm")
+      (shell-command "cd ~/.emacs.d/.vterm/emacs-libvterm && git pull origin master")
+    (shell-command "cd ~/.emacs.d/.vterm && git clone https://github.com/akermu/emacs-libvterm.git"))
+  (async-shell-command "cd ~/.emacs.d/.vterm/emacs-libvterm && git pull origin master && mkdir build -p build && cd build && cmake .. && make -j"))
+
+(unless (file-exists-p "~/.emacs.d/.vterm/emacs-libvterm")
+  (my-compile-libvterm))
+(add-to-list 'load-path "~/.emacs.d/.vterm/emacs-libvterm")
+(require 'vterm)
+(add-to-list 'evil-emacs-state-modes 'vterm-mode)
+
+(defun my/vterm-hook()
+  (define-key vterm-mode-map (kbd "<escape>") (lambda ()
+                                                (interactive)
+                                                (vterm-send-key "<escape>"))))
+
+(add-hook 'vterm-mode-hook 'my/vterm-hook)
+
 (defun rename-term (name)
   (interactive "sRename terminal to: ")
   (rename-buffer (concat "*term* " name)))
 
 (defun rename-new-term (name)
   (interactive "sNew terminal name: ")
-  (multi-term)
+  (vterm)
   (rename-term name))
 
-(global-set-key (kbd "s-t") 'multi-term)
+(global-set-key (kbd "s-t") 'vterm)
 (global-set-key (kbd "s-T") 'rename-new-term)
 
 (use-package highlight-symbol
