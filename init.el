@@ -386,7 +386,6 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (company-quickhelp-mode 1)
 
-; TODO: this section should be removed once all machines are running emacs > 25!!
 (if (> emacs-major-version 25)
     (use-package company-box
       :ensure t
@@ -437,7 +436,6 @@
        ("\\.cpp"   (".h"))
        ("\\.h"   (".c"".cpp"))))
 
-; TODO: this should look for the 'src' folder and create respective 'include' directory
 (setq ff-search-directories
       '("." "../src" "../include"))
 
