@@ -136,8 +136,11 @@
 
 (add-hook 'prog-mode-hook #'hs-minor-mode)
 
-(define-key hs-minor-mode-map (kbd "C-c h h") 'hs-hide-block)
-(define-key hs-minor-mode-map (kbd "C-c h s") 'hs-show-block)
+(defun my/hs-minor-mode-hook ()
+  (define-key hs-minor-mode-map (kbd "C-c h h") 'hs-hide-block)
+  (define-key hs-minor-mode-map (kbd "C-c h s") 'hs-show-block))
+(add-hook 'hs-minor-mode-hook 'my/hs-minor-mode-hook)
+
 
 (put 'dired-find-alternate-file 'disabled nil)
 (setq dired-dwim-target t)
