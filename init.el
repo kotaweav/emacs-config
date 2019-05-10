@@ -93,10 +93,10 @@
         (setq title (concat (number-to-string (car current-config)) "@emacs"))
       (setq title (concat (car (last current-config)) "@emacs")))
     (if (equal curr-count first-count)
-        (setq frame-title-format (concat title " >"))
+        (set-frame-name (concat title " >"))
       (if (equal curr-count last-count)
-          (setq frame-title-format (concat "< " title))
-        (setq frame-title-format (concat "< " title " >")))))
+          (set-frame-name (concat "< " title))
+        (set-frame-name (concat "< " title " >")))))
   (force-mode-line-update))
 
 (add-hook 'eyebrowse-post-window-switch-hook 'my/set-eyebrowse-frame-title)
