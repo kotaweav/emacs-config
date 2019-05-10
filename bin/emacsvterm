@@ -1,0 +1,3 @@
+#! /usr/bin/env bash
+
+emacsclient -c -e "(progn (vterm) (select-frame-set-input-focus (selected-frame)))" --frame-parameters="((close-inner-windows . t))"
