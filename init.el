@@ -77,6 +77,17 @@
   (eyebrowse-mode)
   (eyebrowse-setup-opinionated-keys))
 
+(add-to-list 'default-frame-alist '(close-inner-windows . nil))
+
+(defun my/close-frame-function(frame)
+  (if (frame-parameter nil 'close-inner-windows)
+      (dolist (window (window-list))
+        (let ((buffer (window-buffer window)))
+          (when (< (length (get-buffer-window-list buffer nil t)) 2)
+              (kill-buffer buffer))))))
+
+(add-hook 'delete-frame-functions 'my/close-frame-function)
+
 (defun my/set-eyebrowse-frame-title()
   (interactive)
 
@@ -184,7 +195,8 @@
 (defun my/vterm-hook()
   (define-key vterm-mode-map (kbd "<escape>") (lambda ()
                                                 (interactive)
-                                                (vterm-send-key "<escape>"))))
+                                                (vterm-send-key "<escape>")))
+  (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil))
 
 (add-hook 'vterm-mode-hook 'my/vterm-hook)
 
