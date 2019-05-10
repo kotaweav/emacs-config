@@ -147,6 +147,7 @@
 (require 'helm-config) ; helm-config is part of the helm package
 (helm-mode 1)
 (setq helm-display-header-line nil)
+(add-hook 'after-make-frame-functions (lambda (foo) (set-face-attribute 'helm-source-header nil :height 0.1)))
 (set-face-attribute 'helm-source-header nil :height 0.1)
 (helm-autoresize-mode 1)
 (setq helm-autoresize-max-height 30)
