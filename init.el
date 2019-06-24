@@ -88,6 +88,13 @@
 
 (add-hook 'delete-frame-functions 'my/close-frame-function)
 
+(defun prompt-save-daemon (frame)
+  (when (and (member terminal-frame (visible-frame-list))
+             (< (length (visible-frame-list)) 3))
+    (save-some-buffers)))
+
+(add-hook 'delete-frame-functions 'prompt-save-daemon)
+
 (defun my/set-eyebrowse-frame-title()
   (interactive)
 
