@@ -181,6 +181,11 @@
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "C-x b") 'helm-mini)
 
+(use-package direnv
+  :ensure t
+  :config
+  (direnv-mode))
+
 (setenv "TERM" "xterm-256color")
 (use-package multi-term
   :ensure t
