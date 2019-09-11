@@ -174,6 +174,9 @@
 (setq helm-display-function 'helm-display-buffer-in-own-frame
         helm-display-buffer-reuse-frame t
         helm-use-undecorated-frame-option t)
+(customize-set-variable 'helm-ff-lynx-style-map t)
+(define-key helm-map (kbd "<left>") 'helm-previous-source)
+(define-key helm-map (kbd "<right>") 'helm-next-source)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "C-x b") 'helm-mini)
