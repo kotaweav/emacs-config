@@ -512,6 +512,8 @@
   :ensure t)
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
 
+(add-to-list 'lsp-file-watch-ignored "[/\\\\]\\.ccls-cache$")
+
 (defun my-irony-mode-hook ()
   (define-key irony-mode-map [remap completion-at-point]
     'irony-completion-at-point-async)
