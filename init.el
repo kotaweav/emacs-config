@@ -22,6 +22,8 @@
              '(font . "DejaVu Sans Mono-10"))
 (setq inhibit-startup-screen t)
 
+(setq-default show-trailing-whitespace t)
+
 (defun my-after-init-hook ()
   (if (file-directory-p "~/org/org-docs")
       (find-file "~/org/org-docs/index.org")
