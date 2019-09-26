@@ -378,6 +378,7 @@
 (use-package magit-todos
   :ensure t)
 (magit-todos-mode t)
+(global-set-key (kbd "s-g") 'magit-status)
 
 (use-package cmake-mode
   :ensure t)
@@ -684,3 +685,4 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (if (file-exists-p "~/.emacs.d/custom.el")
     (load-file custom-file))
+(put 'downcase-region 'disabled nil)
