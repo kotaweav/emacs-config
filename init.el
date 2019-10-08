@@ -381,6 +381,7 @@
   :ensure t)
 (magit-todos-mode t)
 (global-set-key (kbd "s-g") 'magit-status)
+(remove-hook 'server-switch-hook 'magit-commit-diff)
 
 (use-package cmake-mode
   :ensure t)
