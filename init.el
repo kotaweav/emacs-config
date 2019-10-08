@@ -49,6 +49,9 @@
              (abbrev-mode nil "abbrev"))))
 
 ;;; General Configuration
+(use-package gnu-elpa-keyring-update
+  :ensure t)
+
 (setq ring-bell-function 'ignore)
 
 (setq default-tab-width 4) ; set tab to appear like 4 spaces
