@@ -58,6 +58,11 @@
 
 (setq enable-local-eval 't)
 
+(global-set-key (kbd "<XF86Tools>") 'kill-region)
+(global-set-key (kbd "<XF86Launch5>") 'kill-ring-save)
+(global-set-key (kbd "<XF86Launch6>") 'yank)
+
+
 (setq
    backup-by-copying t      ; don't clobber symlinks
    backup-directory-alist
