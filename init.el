@@ -610,8 +610,12 @@
 ;;; Web Technologies
 (use-package web-mode
   :ensure t)
+(use-package rjsx-mode
+  :ensure t)
+
 (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js-jsx-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+(setq js-switch-indent-offset 2)
 (setq web-mode-engines-alist '(("hugo" . ".*hugo.*html\\'")))
 (setq web-mode-enable-auto-closing t)
 (setq js-indent-level 2)
