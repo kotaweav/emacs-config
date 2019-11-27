@@ -184,6 +184,7 @@
 (setq helm-autoresize-max-height 30)
 (setq helm-autoresize-min-height 30)
 (setq helm-split-window-in-side-p t)
+(setq helm-buffer-skip-remote-checking t)
 (setq helm-display-function 'helm-display-buffer-in-own-frame
         helm-display-buffer-reuse-frame t
         helm-use-undecorated-frame-option t)
