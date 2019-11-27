@@ -96,6 +96,8 @@
           (when (< (length (get-buffer-window-list buffer nil t)) 2)
               (kill-buffer buffer))))))
 
+(global-set-key (kbd "C-<tab>") 'other-frame)
+
 (add-hook 'delete-frame-functions 'my/close-frame-function)
 
 (defun prompt-save-daemon (frame)
@@ -166,6 +168,7 @@
   (define-key hs-minor-mode-map (kbd "C-c h s") 'hs-show-block))
 (add-hook 'hs-minor-mode-hook 'my/hs-minor-mode-hook)
 
+(global-set-key (kbd "s-f") 'make-frame)
 
 (put 'dired-find-alternate-file 'disabled nil)
 (setq dired-dwim-target t)
