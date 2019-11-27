@@ -24,6 +24,7 @@
 
 (setq-default show-trailing-whitespace t)
 
+(fringe-mode '(20 . 20))
 (defun my-after-init-hook ()
   (if (file-directory-p "~/org/org-docs")
       (find-file "~/org/org-docs/index.org")
