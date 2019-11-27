@@ -570,6 +570,10 @@
 
 (add-hook 'c++-mode-hook 'fix-enum-class)
 
+;;; Rust Mode
+(use-package rust-mode
+  :ensure t)
+
 ;;; Go Mode
 (use-package go-mode
   :ensure t)
