@@ -50,6 +50,11 @@
              (abbrev-mode nil "abbrev"))))
 
 ;;; General Configuration
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+
 (use-package gnu-elpa-keyring-update
   :ensure t)
 
@@ -426,11 +431,23 @@
 (yas-global-mode 1)
 (setq yas-expand-only-for-last-commands '(self-insert-command))
 
+(defun my-create-newline-and-enter-sexp (&rest _ignored)
+  "Open a new brace or bracket expression, with relevant newlines and indent. "
+  (newline)
+  (indent-according-to-mode)
+  (forward-line -1)
+  (indent-according-to-mode))
+
+(setq-default indent-tabs-mode nil)
+
+;;; Completion
+
 (use-package company
   :ensure t
   :config
   (setq company-idle-delay 0)
   (setq company-minimum-prefix-length 1))
+
 (use-package company-quickhelp
   :ensure t)
 (add-hook 'after-init-hook 'global-company-mode)
@@ -441,14 +458,14 @@
       :ensure t
       :hook (company-mode . company-box-mode)))
 
-(defun my-create-newline-and-enter-sexp (&rest _ignored)
-  "Open a new brace or bracket expression, with relevant newlines and indent. "
-  (newline)
-  (indent-according-to-mode)
-  (forward-line -1)
-  (indent-according-to-mode))
+(use-package company-lsp
+  :ensure t)
+(push 'company-lsp company-backends)
 
-(setq-default indent-tabs-mode nil)
+(use-package lsp-ui
+  :ensure t)
+(add-hook 'lsp-mode-hook 'lsp-ui-mode)
+
 
 ;;; Compilation Mode
 (require 'ansi-color)
@@ -526,14 +543,6 @@
   (unless (file-exists-p (concat projectile-cached-project-root "compile-commands.json"))
     (shell-command (concat "cd " projectile-cached-project-root " && ln -s " projectile-cached-project-root "build/compile_commands.json " projectile-cached-project-root "compile_commands.json"))))
 
-(use-package company-lsp
-  :ensure t)
-(push 'company-lsp company-backends)
-
-(use-package lsp-ui
-  :ensure t)
-(add-hook 'lsp-mode-hook 'lsp-ui-mode)
-
 (add-to-list 'lsp-file-watch-ignored "[/\\\\]\\.ccls-cache$")
 
 (defun my-irony-mode-hook ()
@@ -609,7 +618,7 @@
 (use-package company-jedi
   :ensure t)
 (defun my-python-mode-hook ()
-  (add-to-list 'company-backends 'company-jedi))
+  (lsp))
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
 ;;; XML
