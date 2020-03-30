@@ -472,7 +472,8 @@
 (push 'company-lsp company-backends)
 
 (use-package lsp-ui
-  :ensure t)
+  :ensure t
+  :bind ("s-." . lsp-ui-peek-find-references))
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
 
 
