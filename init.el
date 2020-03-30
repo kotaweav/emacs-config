@@ -648,6 +648,13 @@
 (setq web-mode-enable-auto-closing t)
 (setq js-indent-level 2)
 (add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
+
+(defun my-rjsx-hook ()
+  (lsp-mode)
+  )
+
+(add-hook 'rjsx-mode-hook 'my-rjsx-hook)
+
 (use-package company-tern
   :ensure t
   :init
