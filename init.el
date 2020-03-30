@@ -521,6 +521,7 @@
 (defun my-cc-mode-options ()
   (setq fill-column 80)
   (c-set-offset 'innamespace [0])
+  (c-set-offset 'inlambda 0)
   (c-set-offset 'arglist-intro '+)
   (c-set-offset 'arglist-close 0)
   ;; (hl-todo-mode)
