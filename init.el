@@ -715,6 +715,14 @@
   (pdf-tools-install))
 (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
 
+;;; Misc
+(use-package wttrin
+  :ensure t
+  :commands (wttrin)
+  :init
+  (setq wttrin-default-cities '("Boston"
+                                "Tokyo")))
+
 ;;; Start server
 (if (and (fboundp 'server-running-p)
          (not (server-running-p)))
