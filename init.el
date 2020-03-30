@@ -5,6 +5,8 @@
 
 (when (not (package-installed-p 'use-package)) (package-refresh-contents) (package-install 'use-package))
 (require 'use-package)
+(use-package quelpa-use-package
+  :ensure t)
 
 (require 'cl) ; to compensate for a bug in prog-mode in Emacs 24.5
 
