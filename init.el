@@ -238,7 +238,9 @@
   (define-key vterm-mode-map (kbd "<escape>") (lambda ()
                                                 (interactive)
                                                 (vterm-send-key "<escape>")))
-  (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil))
+  (setq show-trailing-whitespace nil)
+  (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
+  (set-face-foreground 'term-color-blue "deep sky blue"))
 
 (add-hook 'vterm-mode-hook 'my/vterm-hook)
 
