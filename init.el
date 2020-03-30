@@ -73,6 +73,11 @@
 (global-set-key (kbd "<XF86Launch5>") 'kill-ring-save)
 (global-set-key (kbd "<XF86Launch6>") 'yank)
 
+(use-package drag-stuff
+  :ensure t)
+(add-to-list 'drag-stuff-except-modes 'org-mode)
+(drag-stuff-global-mode 1)
+(drag-stuff-define-keys)
 
 (setq
    backup-by-copying t      ; don't clobber symlinks
