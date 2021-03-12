@@ -19,7 +19,9 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (use-package darcula-theme
-  :ensure t)
+  :ensure t
+  :config
+  (enable-theme 'darcula))
 (add-to-list 'default-frame-alist
              '(font . "DejaVu Sans Mono-10"))
 (setq inhibit-startup-screen t)
@@ -52,6 +54,9 @@
              (abbrev-mode nil "abbrev"))))
 
 ;;; General Configuration
+(setq gc-cons-threshold 100000000)
+(setq read-process-output-max (* 1024 1024))
+
 (use-package exec-path-from-shell
   :ensure t
   :config
@@ -62,7 +67,7 @@
 
 (setq ring-bell-function 'ignore)
 
-(setq default-tab-width 4) ; set tab to appear like 4 spaces
+(setq-default tab-width 2) ; set tab to appear like 2 spaces
 
 (add-to-list 'display-buffer-alist
              '("." nil (reusable-frames . t)))
@@ -72,6 +77,14 @@
 (global-set-key (kbd "<XF86Tools>") 'kill-region)
 (global-set-key (kbd "<XF86Launch5>") 'kill-ring-save)
 (global-set-key (kbd "<XF86Launch6>") 'yank)
+(global-set-key (kbd "C-s-o") 'other-window)
+(global-set-key (kbd "C-s-p") (lambda () (interactive) (other-window -1)))
+
+(use-package diff-hl
+  :ensure t
+  :config
+  (global-diff-hl-mode)
+  (diff-hl-flydiff-mode))
 
 (use-package drag-stuff
   :ensure t)
@@ -86,7 +99,13 @@
    delete-old-versions t
    kept-new-versions 6
    kept-old-versions 2
+   create-lockfiles nil
    version-control t) ; use versioned backups  
+
+(use-package dtrt-indent
+  :ensure t
+  :config
+  (dtrt-indent-global-mode))
 
 (use-package evil
   :ensure t)
@@ -174,12 +193,15 @@
 (define-key eyebrowse-mode-map (kbd "C-<") 'my/move-ws-left)
 (define-key eyebrowse-mode-map (kbd "C->") 'my/move-ws-right)
 
-(add-hook 'prog-mode-hook #'hs-minor-mode)
+(use-package hideshowvis
+  :ensure t)
 
 (defun my/hs-minor-mode-hook ()
   (define-key hs-minor-mode-map (kbd "C-c h h") 'hs-hide-block)
   (define-key hs-minor-mode-map (kbd "C-c h s") 'hs-show-block))
 (add-hook 'hs-minor-mode-hook 'my/hs-minor-mode-hook)
+(add-hook 'prog-mode-hook #'hs-minor-mode)
+(add-hook 'prog-mode-hook #'hideshowvis-enable)
 
 (global-set-key (kbd "s-f") 'make-frame)
 
@@ -201,6 +223,10 @@
 (setq helm-display-function 'helm-display-buffer-in-own-frame
         helm-display-buffer-reuse-frame t
         helm-use-undecorated-frame-option t)
+(use-package helm-lsp
+  :ensure t)
+(define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
+
 (customize-set-variable 'helm-ff-lynx-style-map t)
 (define-key helm-map (kbd "<left>") 'helm-previous-source)
 (define-key helm-map (kbd "<right>") 'helm-next-source)
@@ -313,6 +339,11 @@
 
 (put 'narrow-to-region 'disabled nil)
 
+(require 'ansi-color)
+(defun display-ansi-colors ()
+  (interactive)
+  (ansi-color-apply-on-region (point-min) (point-max)))
+
 ;;; LaTeX Configuration
 (defun my-latex-mode-hook ()
   (visual-line-mode)
@@ -332,6 +363,7 @@
  '((python . t)
    (ditaa . t)
    (plantuml . t)
+   (ruby . t)
    (latex . t)))
 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
 (setq org-confirm-babel-evaluate nil)
@@ -344,8 +376,33 @@
   :ensure t)
 (defun my/org-mode-hook ()
   (visual-line-mode)
-  (org-indent-mode t))
+  (org-indent-mode t)
+  (local-set-key [?\s-e] 'org-latex-export-to-pdf))
 (add-hook 'org-mode-hook 'my/org-mode-hook)
+
+(require 'ox-latex)
+(add-to-list 'org-latex-classes
+             '("hitec"
+             "\\documentclass{hitec}
+               \\usepackage{graphicx}
+               \\usepackage{graphicx}
+               \\usepackage{hyperref}
+               \\usepackage{parskip}
+               \\usepackage{pstricks}
+               \\usepackage{textcomp}
+               \\usepackage[tikz]{bclogo}
+               \\usepackage{listings}
+               \\usepackage{fancyvrb}
+               \\presetkeys{bclogo}{ombre=true,epBord=3,couleur = blue!15!white,couleurBord = red,arrondi = 0.2,logo=\bctrombone}{}
+               \\usetikzlibrary{patterns}
+               \\company{GIS / CME Group}
+               [NO-DEFAULT-PACKAGES]
+               [NO-PACKAGES]"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
 ;;; Project Configuration
 (use-package skeletor
@@ -404,11 +461,8 @@
 
 (use-package magit
   :ensure t)
-(use-package magit-todos
-  :ensure t)
-(use-package forge
-  :after magit)
-(magit-todos-mode t)
+;; (use-package forge
+  ;; :after magit)
 (global-set-key (kbd "s-g") 'magit-status)
 (remove-hook 'server-switch-hook 'magit-commit-diff)
 (use-package git-link
@@ -424,6 +478,7 @@
 (erc-update-modules)
 
 ;;; Global Programming Modes
+
 (use-package smartparens
   :ensure t)
 (require 'smartparens-config)
@@ -467,15 +522,17 @@
       :ensure t
       :hook (company-mode . company-box-mode)))
 
-(use-package company-lsp
-  :ensure t)
-(push 'company-lsp company-backends)
+;; (use-package company-lsp
+  ;; :ensure t)
+;; (push 'company-lsp company-backends)
+
+
 
 (use-package lsp-ui
   :ensure t
   :bind ("s-." . lsp-ui-peek-find-references))
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-
+(add-hook 'lsp-mode-hook '(set-variable lsp-enable-indentation nil))
 
 ;;; Compilation Mode
 (require 'ansi-color)
@@ -504,7 +561,7 @@
 ;(add-hook 'arduino-mode-hook 'irony-mode)
 
 ;;; CC Mode
-(setq-default c-basic-offset 4)
+(setq-default c-basic-offset 2)
 (setq-default c-doc-comment-style 'javadoc)
 (setq-default c-block-comment-prefix "* ")
 
@@ -613,6 +670,12 @@
             (set (make-local-variable 'company-backends) '(company-go))
             (company-mode)))
 
+(unless (executable-find "gocode") (shell-command "go get golang.org/x/tools/gopls@latest"))
+(setq exec-path (append exec-path '("~/.emacs.d/gopkgs/bin")))
+(use-package flycheck-golangci-lint
+  :ensure t
+  :hook (go-mode . flycheck-golangci-lint-setup))
+
 ;;; Ruby Mode
 (use-package rvm
   :ensure t)
@@ -625,15 +688,51 @@
   '(add-to-list
     'company-backends '(company-robe)))
 
+(eval-after-load "hideshow"
+  '(add-to-list 'hs-special-modes-alist
+                `(ruby-mode
+                  ,(rx (or "def" "class" "module" "do" "{" "[" "if" "else" "unless")) ; Block start
+                  ,(rx (or "}" "]" "end"))                       ; Block end
+                  ,(rx (or "#" "=begin"))                        ; Comment start
+                  ruby-forward-sexp nil)))
 ;;; Python Mode
 (use-package company-jedi
   :ensure t)
-(defun my-python-mode-hook ()
-  (lsp))
-(add-hook 'python-mode-hook 'my-python-mode-hook)
+
+(use-package lsp-python-ms
+  :ensure t
+  :init (setq lsp-python-ms-auto-install-server t)
+  (setq lsp-python-ms-extra-paths ["/opt/ros/melodic/lib/python2.7/dist-packages"])
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-python-ms)
+                          (setq lsp-python-ms-extra-paths ["/opt/ros/melodic/lib/python2.7/dist-packages"])
+                          (lsp))))  ; or lsp-deferred
+
+
+
+;; (use-package lsp-pyright
+  ;; :ensure t
+  ;; :init
+  ;; (setq lsp-pyright-extra-paths '("/opt/ros/melodic/lib/python2.7/dist-packages"))
+  ;; :hook (python-mode . (lambda ()
+  ;;                         (require 'lsp-pyright)
+  ;;                         (setq lsp-pyright-extra-paths '("/opt/ros/melodic/lib/python2.7/dist-packages"))
+  ;;                         (lsp))))  ; or lsp-deferred
+;; (defun my-python-mode-hook ()
+  ;; (lsp))
+;; (add-hook 'python-mode-hook 'my-python-mode-hook)
 
 ;;; XML
 (setq nxml-slash-auto-complete-flag t)
+(add-to-list 'hs-special-modes-alist
+             '(nxml-mode
+               "<!--\\|<[^/>]*[^/]>"
+               "-->\\|</[^/>]*[^/]>"
+
+               "<!--"
+               sgml-skip-tag-forward
+               nil))
+(add-hook 'nxml-mode-hook 'hs-minor-mode)
 
 ;;; Web Technologies
 (use-package web-mode
