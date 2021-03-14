@@ -374,9 +374,13 @@
 
 (use-package adaptive-wrap
   :ensure t)
+(use-package org-download
+  :ensure t)
 (defun my/org-mode-hook ()
   (visual-line-mode)
   (org-indent-mode t)
+  (org-download-enable)
+  (setq org-confirm-babel-evaluate nil)
   (local-set-key [?\s-e] 'org-latex-export-to-pdf))
 (add-hook 'org-mode-hook 'my/org-mode-hook)
 
