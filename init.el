@@ -107,11 +107,17 @@
   :config
   (dtrt-indent-global-mode))
 
+(use-package undo-tree
+  :ensure t)
+(global-undo-tree-mode)
+
+
 (use-package evil
   :ensure t)
 (evil-mode 1)
 (setq evil-want-fine-undo t)
 (evil-set-initial-state 'term-mode 'emacs)
+(evil-set-undo-system 'undo-tree)
 
 (use-package eyebrowse
   :ensure t
