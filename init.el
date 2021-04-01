@@ -265,6 +265,8 @@
 (add-to-list 'load-path "~/.emacs.d/.vterm/emacs-libvterm")
 (require 'vterm)
 (add-to-list 'evil-emacs-state-modes 'vterm-mode)
+(use-package multi-vterm
+         :ensure t)
 
 (defun my/vterm-hook()
   (define-key vterm-mode-map (kbd "<escape>") (lambda ()
@@ -282,10 +284,10 @@
 
 (defun rename-new-term (name)
   (interactive "sNew terminal name: ")
-  (vterm)
+  (multi-vterm)
   (rename-term name))
 
-(global-set-key (kbd "s-t") 'vterm)
+(global-set-key (kbd "s-t") 'multi-vterm)
 (global-set-key (kbd "s-T") 'rename-new-term)
 
 (use-package highlight-symbol
