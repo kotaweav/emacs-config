@@ -1,7 +1,10 @@
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                         ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
+(let ((emacs-git "~/.emacs.d/git"))
+  (mapc (lambda (x)
+          (add-to-list 'load-path (expand-file-name x emacs-git)))
+        (delete ".." (directory-files emacs-git))))
 
 (when (not (package-installed-p 'use-package)) (package-refresh-contents) (package-install 'use-package))
 (require 'use-package)
@@ -18,10 +21,13 @@
 ;;; Appearance Settings
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-(use-package darcula-theme
+(use-package obsidian-theme
   :ensure t
   :config
-  (enable-theme 'darcula))
+  (enable-theme 'obsidian)
+  (set-face-attribute 'mode-line-active nil
+                      :foreground "medium spring green")
+  )
 (add-to-list 'default-frame-alist
              '(font . "DejaVu Sans Mono-10"))
 (setq inhibit-startup-screen t)
@@ -102,10 +108,10 @@
    create-lockfiles nil
    version-control t) ; use versioned backups  
 
-(use-package dtrt-indent
-  :ensure t
-  :config
-  (dtrt-indent-global-mode))
+;; (use-package dtrt-indent
+  ;; :ensure t
+  ;; :config
+  ;; (dtrt-indent-global-mode))
 
 (use-package undo-tree
   :ensure t)
@@ -113,11 +119,20 @@
 
 
 (use-package evil
-  :ensure t)
-(evil-mode 1)
-(setq evil-want-fine-undo t)
-(evil-set-initial-state 'term-mode 'emacs)
-(evil-set-undo-system 'undo-tree)
+  :ensure t
+  :init
+  (setq evil-want-fine-undo t)
+  :config
+  (evil-mode))
+  (evil-set-initial-state 'term-mode 'emacs)
+  (evil-set-undo-system 'undo-tree)
+
+;; (use-package evil
+;;   :ensure t)
+;; (evil-mode 1)
+;; (setq evil-want-fine-undo t)
+;; (evil-set-initial-state 'term-mode 'emacs)
+;; (evil-set-undo-system 'undo-tree)
 
 (use-package eyebrowse
   :ensure t
@@ -199,20 +214,28 @@
 (define-key eyebrowse-mode-map (kbd "C-<") 'my/move-ws-left)
 (define-key eyebrowse-mode-map (kbd "C->") 'my/move-ws-right)
 
-(use-package hideshowvis
-  :ensure t)
+;; (use-package hideshowvis
+  ;; :ensure t)
 
 (defun my/hs-minor-mode-hook ()
   (define-key hs-minor-mode-map (kbd "C-c h h") 'hs-hide-block)
   (define-key hs-minor-mode-map (kbd "C-c h s") 'hs-show-block))
-(add-hook 'hs-minor-mode-hook 'my/hs-minor-mode-hook)
-(add-hook 'prog-mode-hook #'hs-minor-mode)
-(add-hook 'prog-mode-hook #'hideshowvis-enable)
+;; (add-hook 'hs-minor-mode-hook 'my/hs-minor-mode-hook)
+;; (add-hook 'prog-mode-hook #'hs-minor-mode)
+;; (add-hook 'prog-mode-hook #'hideshowvis-enable)
+
+(use-package origami
+  :ensure t
+  :bind (("<XF86Launch7>" . origami-toggle-node)
+         ("C-<XF86Launch7>" . origami-open-all-nodes))
+  :config
+  (global-origami-mode))
 
 (global-set-key (kbd "s-f") 'make-frame)
 
 (put 'dired-find-alternate-file 'disabled nil)
 (setq dired-dwim-target t)
+;(set-face-foreground 'dired-directory "aqua") ;
 
 (use-package helm
   :ensure t)
@@ -226,9 +249,9 @@
 (setq helm-autoresize-min-height 30)
 (setq helm-split-window-in-side-p t)
 (setq helm-buffer-skip-remote-checking t)
-(setq helm-display-function 'helm-display-buffer-in-own-frame
-        helm-display-buffer-reuse-frame t
-        helm-use-undecorated-frame-option t)
+;; (setq helm-display-function 'helm-display-buffer-in-own-frame
+;;         helm-display-buffer-reuse-frame t
+;;         helm-use-undecorated-frame-option t)
 (use-package helm-lsp
   :ensure t)
 (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
@@ -286,6 +309,15 @@
   (interactive "sNew terminal name: ")
   (multi-vterm)
   (rename-term name))
+
+(defun kill-all-term ()
+  (interactive)
+  (with-temp-buffer
+    (dolist (buff (buffer-list))
+      (let ((buff-name (buffer-name buff))
+            (buff-mode (buffer-local-value 'major-mode buff)))
+        (when (equal (buffer-local-value 'major-mode buff) 'vterm-mode)
+          (kill-buffer buff))))))
 
 (global-set-key (kbd "s-t") 'multi-vterm)
 (global-set-key (kbd "s-T") 'rename-new-term)
@@ -372,12 +404,14 @@
    (ditaa . t)
    (plantuml . t)
    (ruby . t)
+   (shell . t)
    (latex . t)))
 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+(setq org-export-preserve-breaks t)
 (setq org-confirm-babel-evaluate nil)
 (setq org-src-fontify-natively t)
 (setq org-time-clocksum-use-effort-durations t)
-(setq org-html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/htmlize.css\"/>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css\"/>\n\n<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js\"></script>\n<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.js\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js\"></script>")
+(setq org-html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/htmlize.css\"/>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css\"/>\n\n<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js\"></script>\n<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js\"></script>\n<script type=\"text/javascript\" src=\"https://unpkg.com/sticky-table-headers\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js\"></script>")
 (setq org-latex-inputenc-alist '(("utf8" . "utf8x")))
 
 (use-package adaptive-wrap
@@ -472,7 +506,8 @@
 (global-set-key (kbd "<f6>") 'my/run)
 
 (use-package magit
-  :ensure t)
+  :ensure t
+  :bind ("s-g" . magit-status))
 ;; (use-package forge
   ;; :after magit)
 (global-set-key (kbd "s-g") 'magit-status)
@@ -544,7 +579,6 @@
   :ensure t
   :bind ("s-." . lsp-ui-peek-find-references))
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-(add-hook 'lsp-mode-hook '(set-variable lsp-enable-indentation nil))
 
 ;;; Compilation Mode
 (require 'ansi-color)
@@ -573,7 +607,7 @@
 ;(add-hook 'arduino-mode-hook 'irony-mode)
 
 ;;; CC Mode
-(setq-default c-basic-offset 2)
+(setq-default c-basic-offset 4)
 (setq-default c-doc-comment-style 'javadoc)
 (setq-default c-block-comment-prefix "* ")
 
@@ -614,6 +648,8 @@
 
 (use-package ccls
   :ensure t
+  :init
+  (setenv "CPLUS_INCLUDE_PATH" "/opt/ros/noetic/include")
   :config
   (setq ccls-executable "~/.emacs.d/.lsp/ccls/build/ccls")
   :hook ((c-mode c++-mode objc-mode) .
@@ -753,9 +789,13 @@
   :ensure t)
 
 (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.heex\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+
 (setq js-switch-indent-offset 2)
-(setq web-mode-engines-alist '(("hugo" . ".*hugo.*html\\'")))
+(setq web-mode-engines-alist
+      '(("hugo" . ".*hugo.*html\\'")
+        ("elixir" . "\\.heex\\'")))
 (setq web-mode-enable-auto-closing t)
 (setq js-indent-level 2)
 (add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
@@ -766,10 +806,10 @@
 
 (add-hook 'rjsx-mode-hook 'my-rjsx-hook)
 
-(use-package company-tern
-  :ensure t
-  :init
-  (add-to-list 'company-backends 'company-tern))
+;; (use-package company-tern
+  ;; :ensure t
+  ;; :init
+  ;; (add-to-list 'company-backends 'company-tern))
 
 ;;; Markdown Mode
 (use-package markdown-mode
@@ -827,12 +867,52 @@
    "/org/mpris/MediaPlayer2"
    "org.mpris.MediaPlayer2.Player" "Previous" 'nil))
 
-(global-set-key (kbd "C-c <home>") 'spotify-toggle-play-pause)
-(global-set-key (kbd "<XF86AudioPlay>") 'spotify-toggle-play-pause)
-(global-set-key (kbd "C-c <prior>") 'spotify-next)
-(global-set-key (kbd "<XF86AudioNext>") 'spotify-next)
-(global-set-key (kbd "C-c <insert>") 'spotify-previous)
-(global-set-key (kbd "<XF86AudioPrev>") 'spotify-previous)
+(use-package request
+  :ensure t)
+
+(defun roon-playpause()
+  (interactive)
+  (request "http://kota-server:7373/api/playpause"))
+
+(defun roon-next()
+  (interactive)
+  (request "http://kota-server:7373/api/next"))
+
+(defun roon-previous()
+  (interactive)
+  (request "http://kota-server:7373/api/previous"))
+
+(defun music-playpause()
+  (interactive)
+  (cond ((equal musicplayer-backend "roon") (roon-playpause))
+        ((equal musicplayer-backend "spotify") (spotify-toggle-play-pause))))
+
+(defun music-next()
+  (interactive)
+  (cond ((equal musicplayer-backend "roon") (roon-next))
+        ((equal musicplayer-backend "spotify") (spotify-next))))
+
+(defun music-previous()
+  (interactive)
+  (cond ((equal musicplayer-backend "roon") (roon-previous))
+        ((equal musicplayer-backend "spotify") (spotify-previous))))
+
+(setq musicplayer-backend "roon")
+
+(defun music-set-backend-roon()
+  (interactive)
+  (setq musicplayer-backend "roon"))
+
+(defun music-set-backend-spotify()
+  (interactive)
+  (setq musicplayer-backend "spotify"))
+
+(global-set-key (kbd "C-c <home>") 'music-playpause)
+(global-set-key (kbd "<XF86AudioPlay>") 'music-playpause)
+(global-set-key (kbd "C-c <prior>") 'music-next)
+(global-set-key (kbd "<XF86AudioNext>") 'music-next)
+(global-set-key (kbd "C-c <insert>") 'music-previous)
+(global-set-key (kbd "<XF86AudioPrev>") 'music-previous)
 
 (use-package pdf-tools
   :ensure t)
@@ -862,3 +942,19 @@
 (if (file-exists-p "~/.emacs.d/custom.el")
     (load-file custom-file))
 (put 'downcase-region 'disabled nil)
+
+
+
+(defun line_localization_setup ()
+  (interactive)
+  (let ((process-connection-type 't))
+    (start-process-shell-command "roscore" "roscore-process" "rosdocker 'source /opt/ros/kinetic/setup.zsh && roscore'")
+    (start-process-shell-command "rviz" "rviz-process" "rosdocker 'source /opt/ros/kinetic/setup.zsh && rviz'")
+    (start-process-shell-command "rosbag" "rosbag-process"
+                                 "rosdocker 'source /opt/ros/kinetic/setup.zsh && /home/kota/bin/rosbag_currtime_playback.py /home/kota/2021-12-07-22-47-27_back_and_forth_straight_line.bag'")))
+
+(defun line_localization_kill ()
+  (interactive)
+  (kill-buffer "roscore-process")
+  (kill-buffer "rviz-process")
+  (kill-buffer "rosbag-process"))
