@@ -26,12 +26,11 @@
   :config
   (enable-theme 'obsidian)
   (set-face-attribute 'mode-line-active nil
-                      :foreground "medium spring green")
-  )
+                      :foreground "medium spring green"))
+
 (add-to-list 'default-frame-alist
              '(font . "DejaVu Sans Mono-10"))
 (setq inhibit-startup-screen t)
-
 (setq-default show-trailing-whitespace t)
 
 (fringe-mode '(20 . 20))
@@ -411,8 +410,115 @@
 (setq org-confirm-babel-evaluate nil)
 (setq org-src-fontify-natively t)
 (setq org-time-clocksum-use-effort-durations t)
+(setq org-blank-before-new-entry
+      '((heading . nil)
+        (plain-list-item . nil)))
 (setq org-html-head "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/htmlize.css\"/>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css\"/>\n\n<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js\"></script>\n<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js\"></script>\n<script type=\"text/javascript\" src=\"https://unpkg.com/sticky-table-headers\"></script>\n<script type=\"text/javascript\" src=\"http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js\"></script>")
 (setq org-latex-inputenc-alist '(("utf8" . "utf8x")))
+
+(use-package centered-window
+  :ensure t
+  :bind
+  (([XF86Launch9] . centered-window-mode)))
+
+(defun copy-org-to-clipboard ()
+  (interactive)
+  (save-excursion
+    (let ((buff (current-buffer)))
+      (with-temp-buffer
+        (insert-buffer-substring buff)
+        (org-mode)
+        (goto-char 0)
+        (org-show-all)
+        (if (not (org-at-heading-p))
+            (progn
+              (org-next-visible-heading 1)
+              (kill-region (point-min) (point))))
+        (while (not (eobp))
+          (let ((num-spaces (- (org-current-level) 1)))
+            (delete-char num-spaces)
+            (insert-char (char-from-name "SPACE") (* num-spaces 2))
+            (forward-line 1)
+            (while (not (or (eobp) (org-at-heading-p)))
+              (progn
+                (if (not (eolp))
+                    (insert-char (char-from-name "SPACE") (+ (* num-spaces 2) 2)))
+                (forward-line 1)))))
+        (clipboard-kill-region (point-min) (point-max))))))
+
+(use-package org-roam
+  :ensure t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory "~/orgroam")
+  (org-roam-completion-everywhere t)
+  (org-roam-mode-sections (list 'org-roam-backlinks-section
+                                'org-roam-reflinks-section))
+  :config
+  (org-roam-setup))
+
+(use-package org-roam-ui
+  :ensure t
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t)
+  (setq org-roam-capture-templates
+        '(("d" "default" plain "%?"
+           :if-new
+           (file+head
+            "%<%Y%m%d%H%M%S>-${slug}.org" "\n#+title: ${title}\n#+author: %n\n#+lastmod: [%<%Y-%m-%d %a %H:%M>]\n#+categories[]:\n#+draft: true\n#+ROAM_TAGS:\n\n")
+           :unnarrowed t))))
+
+(setq time-stamp-active t
+      time-stamp-start "#\\+lastmod:[ \t]*"
+      time-stamp-end "$"
+      time-stamp-format "[%04Y-%02m-%02d %a %H:%M]")
+(add-hook 'before-save-hook 'time-stamp nil)
+
+(use-package transient
+  :ensure t)
+(transient-define-prefix transient-org-bindings ()
+  "Org Interface"
+  [("i" "insert roam node" (lambda () (interactive) (org-roam-node-insert)))]
+  [("f" "find roam node" (lambda () (interactive) (org-roam-node-find)))]
+  [("l" "list org roam" (lambda () (interactive) (org-roam-buffer-toggle)))]
+  [("u" "org roam ui" (lambda () (interactive) (org-roam-ui-open)))]
+  [("c" "copy org to clipboard" (lambda () (interactive) (copy-org-to-clipboard)))])
+
+(transient-define-prefix transient-global-bindings ()
+  "Global Interface"
+  [("o" "org mode" (lambda () (interactive) (transient-org-bindings)))])
+
+(global-set-key (kbd "<XF86LaunchA>") 'transient-global-bindings)
+(global-set-key (kbd "C-c o") 'transient-org-bindings)
+
+(defun org-get-all-website-pages ()
+  (org-roam-db-query
+   [:select file :from nodes :inner :join tags :on (= nodes:id tags:node_id) :where (= tags:tag "web")]))
+
+(setq org-website-path "/home/kota/kota_dev_ws/personal_blog/personal_blog/content/posts")
+(defun org-generate-website ()
+  (interactive)
+  (dolist (source-file-arr (org-get-all-website-pages))
+    (let* ((source-file (car source-file-arr))
+           (target-file
+            (concat (file-name-as-directory org-website-path)
+                    (car (last (file-name-split source-file))))))
+      (if (file-exists-p target-file)
+          (delete-file target-file))
+      (copy-file source-file target-file))))
+
+(setq org-hugo-base-dir "/home/kota/kota_dev_ws/personal_blog/personal_blog")
+(setq org-hugo-default-section-directory "posts")
+
+(defun org-generate-hugo ()
+  (interactive)
+  (dolist (source-file-arr (org-get-all-website-pages))
+    (let ((source-file (car source-file-arr)))
+      (message "exporting %s" source-file)
+      (org-hugo--export-file-to-md source-file))))
 
 (use-package adaptive-wrap
   :ensure t)
@@ -449,6 +555,10 @@
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                ("\\paragraph{%s}" . "\\paragraph*{%s}")
                ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+(use-package ox-hugo
+  :ensure t
+  :after ox)
 
 ;;; Project Configuration
 (use-package skeletor
