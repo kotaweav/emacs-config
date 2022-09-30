@@ -116,7 +116,6 @@
   :ensure t)
 (global-undo-tree-mode)
 
-
 (use-package evil
   :ensure t
   :init
@@ -417,9 +416,29 @@
 (setq org-latex-inputenc-alist '(("utf8" . "utf8x")))
 
 (use-package centered-window
-  :ensure t
-  :bind
-  (([XF86Launch9] . centered-window-mode)))
+  :ensure t)
+
+(defun centered-window-on-switch ()
+  (interactive)
+  (if (and (one-window-p) (bound-and-true-p centered-window-mode-set))
+      (unless (bound-and-true-p centered-window-mode)
+        (progn
+          (centered-window-mode-toggle)))
+    (if (bound-and-true-p centered-window-mode)
+        (progn
+          (centered-window-mode-toggle)))))
+
+(add-hook 'window-configuration-change-hook 'centered-window-on-switch)
+
+(defun toggle-centered-window ()
+  (interactive)
+  (unless (boundp 'centered-window-mode-set)
+    (make-local-variable 'centered-window-mode-set)
+    (setq centered-window-mode-set nil))
+  (setq centered-window-mode-set (not centered-window-mode-set))
+  (centered-window-on-switch))
+(global-set-key (kbd "<XF86Launch9>") 'toggle-centered-window)
+
 
 (defun copy-org-to-clipboard ()
   (interactive)
@@ -529,10 +548,22 @@
 
 (use-package adaptive-wrap
   :ensure t)
+
+(defun split-horizontal-center-window ()
+  (interactive)
+  (if (bound-and-true-p centered-window-mode)
+      (progn
+        (centered-window-mode-toggle)
+        (split-window-horizontally)
+        (centered-window-mode-toggle))
+    (split-window-horizontally)))
+(global-set-key (kbd "C-x 3") 'split-horizontal-center-window)
+
 (use-package org-download
   :ensure t)
 (defun my/org-mode-hook ()
   (visual-line-mode)
+  (toggle-centered-window)
   (org-indent-mode t)
   (org-download-enable)
   (setq org-confirm-babel-evaluate nil)
