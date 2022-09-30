@@ -468,8 +468,15 @@
         '(("d" "default" plain "%?"
            :if-new
            (file+head
-            "%<%Y%m%d%H%M%S>-${slug}.org" "\n#+title: ${title}\n#+author: %n\n#+lastmod: [%<%Y-%m-%d %a %H:%M>]\n#+categories[]:\n#+draft: true\n#+ROAM_TAGS:\n\n")
+            "%<%Y%m%d%H%M%S>-${slug}.org" "\n#+title: ${title}\n#+author: %n\n#+lastmod: [%<%Y-%m-%d %a %H:%M>]\n#+categories[]:\n#+draft: true\n#+ROAM_TAGS:\n#+PROPERTY: header-args :dir \"%<%Y%m%d%H%M%S>-${slug}\"\n#+hugo_bundle: %<%Y%m%d%H%M%S>-${slug}\n#+export_file_name: _index.md\n")
            :unnarrowed t))))
+
+(add-hook 'org-roam-capture-new-node-hook
+          (lambda ()
+            (message "Created node %s" (buffer-file-name))
+            (make-directory (file-name-sans-extension (buffer-file-name)))))
+
+(defun org-create-export-dir)
 
 (setq time-stamp-active t
       time-stamp-start "#\\+lastmod:[ \t]*"
