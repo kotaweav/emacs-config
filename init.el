@@ -654,6 +654,7 @@ parent frame."
   :config
   (setq org-roam-ui-sync-theme t
         org-roam-ui-follow t
+        org-roam-ui-open-on-start nil
         org-roam-ui-update-on-save t)
   (setq org-roam-capture-templates
         '(("d" "default" plain "%?"
@@ -662,12 +663,49 @@ parent frame."
             "%<%Y%m%d%H%M%S>-${slug}.org" "\n#+title: ${title}\n#+author: %n\n#+lastmod: [%<%Y-%m-%d %a %H:%M>]\n#+categories[]:\n#+draft: true\n#+ROAM_TAGS:\n#+PROPERTY: header-args :dir \"%<%Y%m%d%H%M%S>-${slug}\"\n#+hugo_bundle: %<%Y%m%d%H%M%S>-${slug}\n#+export_file_name: _index.md\n")
            :unnarrowed t))))
 
+(defun xwidget-webkit-get-url-buffer (url)
+  "Returns xwidget buffer that points to URL, nil if none."
+  (interactive)
+  (when-let* ((r (lambda (x)
+                   (when x (replace-regexp-in-string "http\\(s\\|\\)://" "" x))))
+              (fnd (seq-find
+                    (lambda (x)
+                      (string= (concat (funcall r url) "/")
+                               (funcall r (xwidget-webkit-uri x))))
+                    xwidget-list)))
+    (xwidget-buffer fnd)))
+
+(defun xwidget-webkit-url-get-create (url &optional buffer-name)
+  "Opens existing xwidget buffer, if it exists for the given URL,
+or creates new session. Optionally, BUFFER-NAME can be set"
+  (interactive (list (or (thing-at-point 'url)
+                         (car (browse-url-interactive-arg "xwidget url: ")))))
+  (require 'xwidget)
+  (or (xwidget-webkit-get-url-buffer url)
+      (progn (xwidget-webkit-browse-url url :new-session)
+             (let ((buf xwidget-webkit-last-session-buffer))
+               (run-with-timer
+                1 nil
+                (lambda (buf buffer-name)
+                  (with-current-buffer buf
+                    (rename-buffer (or buffer-name (concat "*xwidget " url "*")))))
+                buf buffer-name)
+               buf))))
+
+ (defun org-roam-toggle-ui-xwidget ()
+   (interactive)
+   (let* ((url (concat "http://localhost:" (number-to-string org-roam-ui-port)))
+          (buf (or (xwidget-webkit-get-url-buffer
+                    (concat "localhost:" (number-to-string org-roam-ui-port)))
+                   (xwidget-webkit-url-get-create url "*org-roam-ui*"))))
+     (if-let ((win (get-buffer-window buf)))
+         (delete-window win)
+       (switch-to-buffer-other-window buf))))
+
 (add-hook 'org-roam-capture-new-node-hook
           (lambda ()
             (message "Created node %s" (buffer-file-name))
             (make-directory (file-name-sans-extension (buffer-file-name)))))
-
-(defun org-create-export-dir)
 
 (setq time-stamp-active t
       time-stamp-start "#\\+lastmod:[ \t]*"
@@ -675,22 +713,20 @@ parent frame."
       time-stamp-format "[%04Y-%02m-%02d %a %H:%M]")
 (add-hook 'before-save-hook 'time-stamp nil)
 
-(use-package transient
-  :ensure t)
-(transient-define-prefix transient-org-bindings ()
-  "Org Interface"
-  [("i" "insert roam node" (lambda () (interactive) (org-roam-node-insert)))]
-  [("f" "find roam node" (lambda () (interactive) (org-roam-node-find)))]
-  [("l" "list org roam" (lambda () (interactive) (org-roam-buffer-toggle)))]
-  [("u" "org roam ui" (lambda () (interactive) (org-roam-ui-open)))]
-  [("c" "copy org to clipboard" (lambda () (interactive) (copy-org-to-clipboard)))])
+(defun my/org-roam-work-only (node)
+  (interactive)
+  (let ((tags (org-roam-node-tags node)))
+    (member "work" tags)))
 
-(transient-define-prefix transient-global-bindings ()
-  "Global Interface"
-  [("o" "org mode" (lambda () (interactive) (transient-org-bindings)))])
+(defun my/org-roam-personal-only (node)
+  (interactive)
+  (let ((tags (org-roam-node-tags node)))
+    (member "personal" tags)))
 
-(global-set-key (kbd "<XF86LaunchA>") 'transient-global-bindings)
-(global-set-key (kbd "C-c o") 'transient-org-bindings)
+(defun my/org-roam-web-only (node)
+  (interactive)
+  (let ((tags (org-roam-node-tags node)))
+    (member "web" tags)))
 
 (defun org-get-all-website-pages ()
   (org-roam-db-query
@@ -1283,3 +1319,62 @@ parent frame."
   (kill-buffer "roscore-process")
   (kill-buffer "rviz-process")
   (kill-buffer "rosbag-process"))
+
+;;; Transient
+
+(use-package transient
+  :ensure t)
+
+(transient-define-prefix transient-org-find-bindings ()
+  [("f" "find from all nodes" (lambda () (interactive) (org-roam-node-find)))]
+  [("w" "find from work nodes" (lambda () (interactive) (org-roam-node-find t nil 'my/org-roam-work-only)))]
+  [("p" "find from personal nodes" (lambda () (interactive) (org-roam-node-find t nil 'my/org-roam-personal-only)))]
+  [("i" "find from web nodes" (lambda () (interactive) (org-roam-node-find t nil 'my/org-roam-web-only)))])
+
+(transient-define-prefix transient-org-bindings ()
+  "Org Interface"
+  [("i" "insert roam node" (lambda () (interactive) (org-roam-node-insert)))]
+  [("f" "find roam node" (lambda () (interactive) (transient-org-find-bindings)))]
+  [("l" "list org roam" (lambda () (interactive) (org-roam-buffer-toggle)))]
+  [("u" "org roam ui" (lambda ()
+                        (interactive)
+                        (unless org-roam-ui-mode (org-roam-ui-mode))
+                        (org-roam-toggle-ui-xwidget)))]
+  [("c" "copy org to clipboard" (lambda () (interactive) (copy-org-to-clipboard)))]
+  [("s" "org sort" (lambda () (interactive) (org-sort)))])
+
+; taken from https://emacs.stackexchange.com/questions/41016/how-can-i-yank-images-from-emacs
+(defun x11-yank-image-at-point-as-image ()
+  "Yank the image at point to the X11 clipboard as image/png."
+  (interactive)
+  (let ((image (get-text-property (point) 'display)))
+    (if (eq (car image) 'image)
+        (let ((data (plist-get (cdr image) ':data))
+              (file (plist-get (cdr image) ':file)))
+          (cond (data
+                 (with-temp-buffer
+                   (insert data)
+                   (call-shell-region
+                    (point-min) (point-max)
+                    "xclip -i -selection clipboard -t image/png")))
+                (file
+                 (if (file-exists-p file)
+                     (start-process
+                      "xclip-proc" nil "xclip"
+                      "-i" "-selection" "clipboard" "-t" "image/png"
+                      "-quiet" (file-truename file))))
+                (t
+                 (message "The image seems to be malformed."))))
+      (message "Point is not at an image."))))
+
+(transient-define-prefix transient-file-bindings ()
+  [("p" "copy file path to clipboard" (lambda () (interactive) (kill-new buffer-file-name)))]
+  [("i" "copy current image" (lambda () (interactive) (x11-yank-image-at-point-as-image)))])
+
+(transient-define-prefix transient-global-bindings ()
+  "Global Interface"
+  [("o" "org mode" (lambda () (interactive) (transient-org-bindings)))]
+  [("f" "file operations" (lambda () (interactive) (transient-file-bindings)))])
+
+(global-set-key (kbd "<XF86LaunchA>") 'transient-global-bindings)
+(global-set-key (kbd "C-c o") 'transient-org-bindings)
