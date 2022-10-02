@@ -28,6 +28,10 @@
   (set-face-attribute 'mode-line-active nil
                       :foreground "medium spring green"))
 
+(global-hl-line-mode 1)
+;; underline the current line
+(set-face-attribute hl-line-face nil)
+
 (add-to-list 'default-frame-alist
              '(font . "DejaVu Sans Mono-10"))
 (setq inhibit-startup-screen t)
