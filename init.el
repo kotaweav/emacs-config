@@ -251,9 +251,177 @@
 (setq helm-autoresize-min-height 30)
 (setq helm-split-window-in-side-p t)
 (setq helm-buffer-skip-remote-checking t)
-;; (setq helm-display-function 'helm-display-buffer-in-own-frame
-;;         helm-display-buffer-reuse-frame t
-;;         helm-use-undecorated-frame-option t)
+(setq helm-frame-background-color "#202527")
+
+(setq helm-display-buffer-width 90)
+
+; taken from default helm-core.el
+(defun my/helm-display-buffer-in-own-frame (buffer &optional resume)
+  "Display Helm buffer BUFFER in a separate frame.
+
+Function suitable for `helm-display-function',
+`helm-completion-in-region-display-function' and/or
+`helm-show-completion-default-display-function'.
+
+See `helm-display-buffer-height' and `helm-display-buffer-width'
+to configure frame size.
+
+Note that this feature is available only with emacs-25+.
+Note also it is not working properly in helm nested session with emacs
+version < emacs-28."
+  (cl-assert (and (fboundp 'window-absolute-pixel-edges)
+                  (fboundp 'frame-geometry))
+             nil "Helm buffer in own frame is only available starting at emacs-25+")
+  (if (not (display-graphic-p))
+      ;; Fallback to default when frames are not usable.
+      (helm-default-display-buffer buffer)
+    (setq helm--buffer-in-new-frame-p t)
+    (let* ((parent (selected-frame))
+           (frame-pos (frame-position parent))
+           (parent-left (car frame-pos))
+           (parent-top (cdr frame-pos))
+           (pos (window-absolute-pixel-position))
+           (half-screen-size (/ (display-pixel-height x-display-name) 2))
+           (frame-info (frame-geometry))
+           (prmt-size (length helm--prompt))
+           (line-height (frame-char-height))
+           tab-bar-mode
+           (new-frame-alist
+             (if resume
+                 (buffer-local-value 'helm--last-frame-parameters
+                                     (get-buffer buffer))
+               `((width . ,helm-display-buffer-width)
+                 (height . ,helm-display-buffer-height)
+                 (tool-bar-lines . 0)
+                 ;; (left . ,(- (car pos)
+                 ;;             (* (frame-char-width)
+                 ;;                (if (< (- (point) (point-at-bol)) prmt-size)
+                 ;;                    (- (point) (point-at-bol))
+                 ;;                  prmt-size))))
+                 ;; Try to put frame at the best possible place.
+                 ;; Frame should be below point if enough
+                 ;; place, otherwise above point and
+                 ;; current line should not be hidden
+                 ;; by helm frame.
+                 ;; (top . ,(if (> (cdr pos) half-screen-size)
+                 ;;             ;; Above point
+                 ;;             (- (cdr pos)
+                 ;;                ;; add 2 lines to make sure there is always a gap
+                 ;;                (* (+ helm-display-buffer-height 2) line-height)
+                 ;;                ;; account for title bar height too
+                 ;;                (cddr (assq 'title-bar-size frame-info)))
+                 ;;           ;; Below point
+                 ;;           (+ (cdr pos) line-height)))
+
+                 ;; (left . ,(+ parent-left (/ (* (frame-char-width parent) (frame-width parent)) 4)))
+                 ;; (top . ,(+ parent-top (/ (* (frame-char-width parent) (frame-height parent)) 6)))
+                 ;; (left . ,(+ parent-left (/ (- (* (frame-char-width parent) (frame-width parent)) ,helm-display-buffer-width) 2)))
+                 (left . ,(+ parent-left (/ (- (* (frame-char-width parent) (frame-width parent)) (* (frame-char-width parent) helm-display-buffer-width)) 2)))
+
+                 ;; (left . ,(+ parent-left (/ (* (frame-char-width parent) (frame-width parent)) 4)))
+
+                 (top . ,(+ parent-top (/ (* (frame-char-width parent) (frame-height parent)) 6)))
+                 (title . "Helm")
+                 (undecorated . ,helm-use-undecorated-frame-option)
+                 (background-color . ,(or helm-frame-background-color
+                                          (face-attribute 'default :background)))
+                 (foreground-color . ,(or helm-frame-foreground-color
+                                          (face-attribute 'default :foreground)))
+                 (alpha . ,(or helm-frame-alpha 100))
+                 (font . ,(assoc-default 'font (frame-parameters)))
+                 (vertical-scroll-bars . nil)
+                 (menu-bar-lines . 0)
+                 (fullscreen . nil)
+                 (visibility . ,(null helm-display-buffer-reuse-frame))
+                 (minibuffer . t))))
+           display-buffer-alist)
+      ;; Display minibuffer above or below only in initial session,
+      ;; not on a session triggered by action, this way if user have
+      ;; toggled minibuffer and header-line manually she keeps this
+      ;; setting in next action.
+      (unless (or helm--executing-helm-action resume)
+        ;; Add the hook inconditionally, if
+        ;; helm-echo-input-in-header-line is nil helm-hide-minibuffer-maybe
+        ;; will have anyway no effect so no need to remove the hook.
+        (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+        (with-helm-buffer
+          (setq-local helm-echo-input-in-header-line
+                      (not (> (cdr pos) half-screen-size)))))
+      (helm-display-buffer-popup-frame buffer new-frame-alist)
+      ;; When frame size have been modified manually by user restore
+      ;; it to default value unless resuming or not using
+      ;; `helm-display-buffer-reuse-frame'.
+      ;; This have to be done AFTER raising the frame otherwise
+      ;; minibuffer visibility is lost until next session.
+      (unless (or resume (not helm-display-buffer-reuse-frame))
+        (set-frame-size helm-popup-frame
+                        helm-display-buffer-width
+                        helm-display-buffer-height)))
+    (helm-log-run-hook "my/helm-display-buffer-in-own-frame" 'helm-window-configuration-hook)))
+
+
+; taken from https://www.reddit.com/r/emacs/comments/jj269n/display_helm_frames_in_the_center_of_emacs/
+(defun my-helm-display-frame-center (buffer &optional resume)
+  "Display `helm-buffer' in a separate frame which centered in
+parent frame."
+  (if (not (display-graphic-p))
+      ;; Fallback to default when frames are not usable.
+      (helm-default-display-buffer buffer)
+    (setq helm--buffer-in-new-frame-p t)
+    (let* ((parent (selected-frame))
+           (frame-pos (frame-position parent))
+           (parent-left (car frame-pos))
+           (parent-top (cdr frame-pos))
+           (width (/ (frame-width parent) 2))
+           (height (/ (frame-height parent) 3))
+
+           ;; (width (max (/ (frame-width parent) 2) 300))
+           ;; (height (max (/ (frame-height parent) 3) 200))
+           tab-bar-mode
+           (default-frame-alist
+             (if resume
+                 (buffer-local-value 'helm--last-frame-parameters
+                                     (get-buffer buffer))
+               `((parent . ,parent)
+                 (width . ,width)
+                 (height . ,height)
+                 (undecorated . ,helm-use-undecorated-frame-option)
+                 (left-fringe . 0)
+                 (right-fringe . 0)
+                 (tool-bar-lines . 0)
+                 (line-spacing . 0)
+                 (desktop-dont-save . t)
+                 (no-special-glyphs . t)
+                 (inhibit-double-buffering . t)
+                 (tool-bar-lines . 0)
+                 (left . ,(+ parent-left (/ (* (frame-char-width parent) (frame-width parent)) 4)))
+                 (top . ,(+ parent-top (/ (* (frame-char-width parent) (frame-height parent)) 6)))
+                 (title . "Helm")
+                 (vertical-scroll-bars . nil)
+                 (menu-bar-lines . 0)
+                 (fullscreen . nil)
+                 (visibility . ,(null helm-display-buffer-reuse-frame))
+                 ;; (internal-border-width . ,(if IS-MAC 1 0))
+                )))
+           display-buffer-alist)
+      ;; (set-face-background 'internal-border (face-foreground 'default))
+      ;; (raise-frame)
+      (helm-display-buffer-popup-frame buffer default-frame-alist))
+      ;; (unless (bound-and-true-p 'helm-popup-frame)
+        ;; (setq helm-popup-frame (selected-frame)))
+      ;; (select-frame-set-input-focus (selected-frame)))
+
+    ;; (select-frame-set-input-focus helm-popup-frame)
+    ;; (select-frame-set-input-focus )
+    (helm-log-run-hook "my-helm-display-frame-center" 'helm-window-configuration-hook)))
+(setq helm-display-function 'my/helm-display-buffer-in-own-frame
+        helm-display-buffer-reuse-frame t
+        helm-use-undecorated-frame-option t)
+;; (setq helm-display-function 'my-helm-display-frame-center)
+
+;; (add-hook 'helm-major-mode-hook
+;;           (lambda ()
+;;             (message "enter helm")))
 (use-package helm-lsp
   :ensure t)
 (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
