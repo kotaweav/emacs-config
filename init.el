@@ -125,9 +125,9 @@
   :init
   (setq evil-want-fine-undo t)
   :config
-  (evil-mode))
-  (evil-set-initial-state 'term-mode 'emacs)
-  (evil-set-undo-system 'undo-tree)
+	(evil-mode))
+(evil-set-initial-state 'term-mode 'emacs)
+(evil-set-undo-system 'undo-tree)
 
 ;; (use-package evil
 ;;   :ensure t)
