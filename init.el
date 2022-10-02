@@ -929,6 +929,12 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   ;; :ensure t)
 ;; (push 'company-lsp company-backends)
 
+(use-package tree-sitter
+  :ensure t)
+(use-package tree-sitter-langs
+  :ensure t)
+(global-tree-sitter-mode)
+(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
 
 (use-package dumb-jump
   :ensure t
