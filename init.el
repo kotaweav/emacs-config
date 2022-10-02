@@ -26,7 +26,14 @@
   :config
   (enable-theme 'obsidian)
   (set-face-attribute 'mode-line-active nil
-                      :foreground "medium spring green"))
+                      :foreground "medium spring green"
+                      :background "#132024"))
+
+(use-package all-the-icons
+  :ensure t)
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
 
 (global-hl-line-mode 1)
 ;; underline the current line
