@@ -592,7 +592,7 @@ parent frame."
 
 (defun centered-window-on-switch ()
   (interactive)
-  (if (and (one-window-p) (bound-and-true-p centered-window-mode-set))
+  (if (and (not (or (window-in-direction 'left) (window-in-direction 'right))) (bound-and-true-p centered-window-mode-set))
       (unless (bound-and-true-p centered-window-mode)
         (progn
           (centered-window-mode-toggle)))
