@@ -23,3 +23,14 @@ bookmarks
 /transient/
 /.vterm/
 .lsp-session*
+
+/straight/
+org-roam.db
+/request/
+/var/
+/emojis/
+/eshell/
+/eln-cache/
+/.cache/
+.org-id-locations
+/projects
