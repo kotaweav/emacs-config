@@ -1332,6 +1332,99 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   (pdf-tools-install))
 (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-view-mode))
 
+;;; Secrets
+(use-package pass
+  :ensure t)
+
+
+;;; Linear App
+(defmacro with-linear-call-post(graphql &rest body)
+  `(progn
+     (message ,graphql)
+     (request
+            "https://api.linear.app/graphql"
+            :type "POST"
+            :headers (list (cons "Content-Type" "application/json")
+                           (cons "Authorization" (format "Bearer %s" (password-store-get "linear-user-token"))))
+            :data ,graphql
+            :success (cl-function
+                      (lambda (&key data &allow-other-keys)
+                        ,@body)))))
+
+(defmacro with-linear-get-me (&rest body)
+  `(progn
+     (with-linear-call-post
+      (json-encode '(("query" . "{ viewer { id } }")))
+      (let ((linear/user-info (json-read-from-string data)))
+        ,@body))))
+
+(defmacro with-linear-get-teams (&rest body)
+  `(progn
+     (with-linear-call-post
+      (json-encode '(("query" . "{ teams { nodes { id name } } }")))
+      (let ((linear/user-teams (json-read-from-string data)))
+        ,@body))))
+
+;; (with-linear-get-me
+;;  (message (let-alist linear/user-info .data.viewer.id)))
+
+;; (with-linear-get-teams
+;; (let ((teams (append (let-alist linear/user-teams .data.teams.nodes) nil)))
+;;     (message (car teams))))
+ ;; (message (let-alist linear/user-info .data.viewer.id)))
+
+
+;; (defmacro with-linear-get-me (&rest body)
+;;   `(progn
+;;      (linear--call-post
+;;       (json-encode '(("query" . "{ viewer { id } }")))
+;;       (cl-function
+;;        (lambda (&key data &allow-other-keys)
+;;          (message data)
+;;          (let ((linear/user-info (json-read-from-string data)))
+;;            ,@body))))))
+
+;; (defmacro with-linear-get-my-issues (&rest body)
+;;   `(progn
+;;      (with-linear-get-me
+;;       (linear--call-post
+;;        (json-encode
+;;         (list
+;;          (cons "query"
+;;                (format "{ user(id: \"%s\") { id name assignedIssues { nodes { id title url } } } }"
+;;                        (let-alist linear/user-info .data.viewer.id)))))
+;;        (let ((linear/issues (json-read-from-string data)))
+;;          ,@body)))))
+
+;; (with-linear-get-my-issues
+;;  (message "%s" linear/issues))
+
+;; (defun linear-get-user-issues(user-id)
+;;   (interactive "sUser id")
+;;   (linear--call-post
+;;    (json-encode
+;;     (list
+;;      (cons "query"
+;;            (format "{ user(id: \"%s\") { id name assignedIssues { nodes { id title url } } } }" user-id))))
+;;    (cl-function
+;;     (lambda (&key data &allow-other-keys)
+;;       (setq linear--user-issues data)))))
+
+;; (defun linear-teams ()
+;;   (interactive)
+;;   (with-demo-buffer
+;;     (with-linear-get-teams
+;;      (let ((teams (append (let-alist linear/user-teams .data.teams.nodes) nil))
+;;            (inhibit-read-only t))
+;;        (magit-insert-section (demo-files)
+;;          (magit-insert-heading "Linear Teams\n")
+;;          (message "teams: %s    %s" teams (length teams))
+;;          (dolist (team teams)
+;;            (magit-insert-section (demo-file team)
+;;              (message "%s" team)
+;;              (message "Item:: %s" (let-alist team .name))
+;;              (insert (format "%s\n" (let-alist team .name))))))))))
+
 ;;; Misc
 (use-package wttrin
   :ensure t
