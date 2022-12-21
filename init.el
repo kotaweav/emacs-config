@@ -1015,6 +1015,7 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 
 ;;; CC Mode
 (setq-default c-basic-offset 4)
+(setq-default tab-width 4)
 (setq-default c-doc-comment-style 'javadoc)
 (setq-default c-block-comment-prefix "* ")
 
