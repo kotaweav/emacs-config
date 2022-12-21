@@ -18,6 +18,19 @@
   (make-directory "~/.emacs.d/lisp"))
 (add-to-list 'load-path "~/.emacs.d/lisp")
 
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
 ;;; Appearance Settings
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -935,6 +948,14 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 ;; (use-package company-lsp
   ;; :ensure t)
 ;; (push 'company-lsp company-backends)
+
+(use-package straight
+  :ensure t)
+(use-package copilot
+  :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+  :ensure t)
+(define-key copilot-completion-map (kbd "C-<return>") 'copilot-accept-completion)
+(add-hook 'prog-mode-hook 'copilot-mode)
 
 (use-package tree-sitter
   :ensure t)
