@@ -1516,6 +1516,6 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   [("o" "org mode" (lambda () (interactive) (transient-org-bindings)))]
   [("f" "file operations" (lambda () (interactive) (transient-file-bindings)))])
 
-(global-set-key (kbd "<XF86Launch8>") 'copilot-accept-completion)
-(global-set-key (kbd "<XF86LaunchA>") 'transient-global-bindings)
+(global-set-key (kbd "<XF86Launch8>") 'copilot-accept-completion) ; f17
+(global-set-key (kbd "<XF86LaunchA>") 'transient-global-bindings) ; f19
 (global-set-key (kbd "C-c o") 'transient-org-bindings)
