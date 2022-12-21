@@ -96,7 +96,7 @@
 
 (setq ring-bell-function 'ignore)
 
-(setq-default tab-width 2) ; set tab to appear like 2 spaces
+(setq-default tab-width 4) ; set tab to appear like 2 spaces
 
 (add-to-list 'display-buffer-alist
              '("." nil (reusable-frames . t)))
@@ -1187,12 +1187,12 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 (add-to-list 'auto-mode-alist '("\\.heex\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
 
-(setq js-switch-indent-offset 2)
+(setq js-switch-indent-offset 4)
 (setq web-mode-engines-alist
       '(("hugo" . ".*hugo.*html\\'")
         ("elixir" . "\\.heex\\'")))
 (setq web-mode-enable-auto-closing t)
-(setq js-indent-level 2)
+(setq js-indent-level 4)
 (add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
 
 (defun my-rjsx-hook ()
