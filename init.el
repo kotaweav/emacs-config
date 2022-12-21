@@ -582,6 +582,10 @@ parent frame."
 (add-hook 'latex-mode-hook 'my-latex-mode-hook)
 
 ;;; Org Configuration
+(with-eval-after-load 'org
+  (add-to-list 'org-modules 'org-habit t))
+(use-package ob-ipython
+  :ensure t)
 (setq org-log-done 'time)
 (use-package plantuml-mode
   :ensure t
@@ -591,12 +595,14 @@ parent frame."
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((python . t)
+   (ipython . t)
    (ditaa . t)
    (plantuml . t)
    (ruby . t)
    (shell . t)
    (latex . t)))
 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
+(setq org-image-actual-width 800)
 (setq org-export-preserve-breaks t)
 (setq org-confirm-babel-evaluate nil)
 (setq org-src-fontify-natively t)
@@ -668,6 +674,12 @@ parent frame."
                                 'org-roam-reflinks-section))
   :config
   (org-roam-setup))
+
+(setq org-agenda-files
+      `(,(concat (file-name-as-directory org-roam-directory) "20220927084753-daily_habits.org")))
+(setq org-agenda-prefix-format '(
+  (agenda  . " %-12T")))
+(setq org-agenda-remove-tags t)
 
 (use-package org-roam-ui
   :ensure t
