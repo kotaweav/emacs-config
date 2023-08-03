@@ -1,3 +1,6 @@
+;; emacs built with:
+;; ./configure --with-cairo --with-xwidgets --with-x-toolkit=gtk3 --without-compress-install --with-native-compilation --with-json --with-tree-sitter --with-imagemagick
+
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
@@ -10,6 +13,12 @@
 (require 'use-package)
 (use-package quelpa-use-package
   :ensure t)
+(use-package treesit-auto
+  :ensure t
+  :config
+  (global-treesit-auto-mode))
+(setq treesit-auto-install 'prompt)
+(setq treesit-font-lock-level 4)
 
 (require 'cl) ; to compensate for a bug in prog-mode in Emacs 24.5
 
@@ -42,11 +51,15 @@
                       :foreground "medium spring green"
                       :background "#132024"))
 
+(use-package nerd-icons
+  :ensure t)
 (use-package all-the-icons
   :ensure t)
 (use-package doom-modeline
   :ensure t
-  :init (doom-modeline-mode 1))
+  :init (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-icon t))
 
 (global-hl-line-mode 1)
 ;; underline the current line
@@ -176,6 +189,30 @@
 
 (add-hook 'delete-frame-functions 'my/close-frame-function)
 
+(defun my/toggle-fixed-window()
+  (interactive)
+  (cond
+   ((and (window-fixed-size-p)
+         (window-dedicated-p))
+    (setq window-fixed-size nil)
+    (set-window-dedicated-p (selected-window) nil)
+    (window-preserve-size (selected-window) nil)
+    (message "Window is now resizable"))
+   ((and (not (window-fixed-size-p))
+         (not (window-dedicated-p)))
+    (setq window-fixed-size t)
+    (set-window-dedicated-p (selected-window) t)
+    (window-preserve-size (selected-window) t)
+    (message "Window is now fixed"))
+   ((window-dedicated-p)
+    (setq window-fixed-size t)
+    (window-preserve-size (selected-window) t)
+    (message "Window is now fixed. Be careful, originally dedicated."))
+   (t
+    (message "Could not toggle window state"))))
+
+(global-set-key (kbd "C-c t") 'my/toggle-fixed-window)
+
 (defun prompt-save-daemon (frame)
   (when (and (member terminal-frame (visible-frame-list))
              (< (length (visible-frame-list)) 3))
@@ -258,11 +295,12 @@
 
 (put 'dired-find-alternate-file 'disabled nil)
 (setq dired-dwim-target t)
+(setq dired-mouse-drag-files t)
 ;(set-face-foreground 'dired-directory "aqua") ;
 
 (use-package helm
   :ensure t)
-(require 'helm-config) ; helm-config is part of the helm package
+;(require 'helm-config) ; helm-config is part of the helm package
 (helm-mode 1)
 (setq helm-display-header-line nil)
 (add-hook 'after-make-frame-functions (lambda (foo) (set-face-attribute 'helm-source-header nil :height 0.1)))
@@ -365,9 +403,10 @@ version < emacs-28."
         ;; helm-echo-input-in-header-line is nil helm-hide-minibuffer-maybe
         ;; will have anyway no effect so no need to remove the hook.
         (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
-        (with-helm-buffer
-          (setq-local helm-echo-input-in-header-line
-                      (not (> (cdr pos) half-screen-size)))))
+        ;; (with-helm-buffer
+        ;;   (setq-local helm-echo-input-in-header-line
+        ;;               (not (> (cdr pos) half-screen-size))))
+        )
       (helm-display-buffer-popup-frame buffer new-frame-alist)
       ;; When frame size have been modified manually by user restore
       ;; it to default value unless resuming or not using
@@ -664,6 +703,8 @@ parent frame."
                 (forward-line 1)))))
         (clipboard-kill-region (point-min) (point-max))))))
 
+(use-package emacsql-sqlite-builtin
+  :ensure t)
 (use-package org-roam
   :ensure t
   :init
@@ -676,11 +717,11 @@ parent frame."
   :config
   (org-roam-setup))
 
-(setq org-agenda-files
-      `(,(concat (file-name-as-directory org-roam-directory) "20220927084753-daily_habits.org")))
-(setq org-agenda-prefix-format '(
-  (agenda  . " %-12T")))
-(setq org-agenda-remove-tags t)
+;; (setq org-agenda-files
+;;       `(,(concat (file-name-as-directory org-roam-directory) "20220927084753-daily_habits.org")))
+;; (setq org-agenda-prefix-format '(
+  ;; (agenda  . " %-12T")))
+;; (setq org-agenda-remove-tags t)
 
 (use-package org-roam-ui
   :ensure t
@@ -812,21 +853,29 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 (add-hook 'org-mode-hook 'my/org-mode-hook)
 
 (require 'ox-latex)
+(setq org-latex-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+(setq org-latex-listings 'minted)
 (add-to-list 'org-latex-classes
              '("hitec"
              "\\documentclass{hitec}
                \\usepackage{graphicx}
                \\usepackage{graphicx}
-               \\usepackage{hyperref}
+               \\usepackage[hidelinks]{hyperref}
                \\usepackage{parskip}
                \\usepackage{pstricks}
                \\usepackage{textcomp}
                \\usepackage[tikz]{bclogo}
                \\usepackage{listings}
                \\usepackage{fancyvrb}
+               \\usepackage{xcolor}
+               \\definecolor{LightGray}{gray}{0.9}
+               \\usepackage[bgcolor=LightGray]{minted}
+               \\usemintedstyle{monokai}
                \\presetkeys{bclogo}{ombre=true,epBord=3,couleur = blue!15!white,couleurBord = red,arrondi = 0.2,logo=\bctrombone}{}
                \\usetikzlibrary{patterns}
-               \\company{GIS / CME Group}
+               \\company{Skylla Technologies}
                [NO-DEFAULT-PACKAGES]
                [NO-PACKAGES]"
                ("\\section{%s}" . "\\section*{%s}")
@@ -915,6 +964,9 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 
 ;;; Global Programming Modes
 
+(setq font-lock-maximum-decoration t)
+(global-font-lock-mode t)
+
 (use-package smartparens
   :ensure t)
 (require 'smartparens-config)
@@ -930,6 +982,7 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   :ensure t)
 (yas-global-mode 1)
 (setq yas-expand-only-for-last-commands '(self-insert-command))
+(global-set-key (kbd "M-o") 'yas-expand)
 
 (defun my-create-newline-and-enter-sexp (&rest _ignored)
   "Open a new brace or bracket expression, with relevant newlines and indent. "
@@ -962,20 +1015,35 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   ;; :ensure t)
 ;; (push 'company-lsp company-backends)
 
-(use-package straight
-  :ensure t)
+;; (use-package straight
+  ;; :ensure t)
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
   :ensure t)
 (define-key copilot-completion-map (kbd "C-<return>") 'copilot-accept-completion)
 (add-hook 'prog-mode-hook 'copilot-mode)
 
-(use-package tree-sitter
-  :ensure t)
-(use-package tree-sitter-langs
-  :ensure t)
-(global-tree-sitter-mode)
-(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+(setq treesit-language-source-alist
+   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+     (cmake "https://github.com/uyha/tree-sitter-cmake")
+     (css "https://github.com/tree-sitter/tree-sitter-css")
+     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+     (c "https://github.com/tree-sitter/tree-sitter-c")
+     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+     (go "https://github.com/tree-sitter/tree-sitter-go")
+     (html "https://github.com/tree-sitter/tree-sitter-html")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (json "https://github.com/tree-sitter/tree-sitter-json")
+     (make "https://github.com/alemuller/tree-sitter-make")
+     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+     (python "https://github.com/tree-sitter/tree-sitter-python")
+     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+
+; use this command to enable all:
+; (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
 
 (use-package dumb-jump
   :ensure t
@@ -1020,10 +1088,7 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 (setq-default c-doc-comment-style 'javadoc)
 (setq-default c-block-comment-prefix "* ")
 
-(setq cc-other-file-alist
-      '(("\\.c"   (".h"))
-       ("\\.cpp"   (".h"))
-       ("\\.h"   (".c"".cpp"))))
+(setq-default c-ts-mode-indent-offset 4)
 
 (setq ff-search-directories
       '("." "../src" "../include"))
@@ -1042,27 +1107,37 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   ; (auto-fill-mode t)
   )
 (add-hook 'c-mode-common-hook 'my-cc-mode-options)
+(add-hook 'c-ts-base-mode-hook 'my-cc-mode-options)
 
 ;;; C++ Mode
 
-(defun my-compile-ccls-server ()
-  (make-directory "~/.emacs.d/.lsp" t)
-  (if (file-directory-p "~/.emacs.d/.lsp/ccls")
-      (shell-command "cd ~/.emacs.d/.lsp/ccls && git pull origin master")
-    (shell-command "cd ~/.emacs.d/.lsp && git clone https://github.com/MaskRay/ccls --depth=1"))
-  (async-shell-command "cd ~/.emacs.d/.lsp/ccls && git submodule update --init && mkdir -p build && cd build && cmake .. && make -j"))
+;; (defun my-compile-ccls-server ()
+;;   (make-directory "~/.emacs.d/.lsp" t)
+;;   (if (file-directory-p "~/.emacs.d/.lsp/ccls")
+;;       (shell-command "cd ~/.emacs.d/.lsp/ccls && git pull origin master")
+;;     (shell-command "cd ~/.emacs.d/.lsp && git clone https://github.com/MaskRay/ccls --depth=1"))
+;;   (async-shell-command "cd ~/.emacs.d/.lsp/ccls && git submodule update --init && mkdir -p build && cd build && cmake .. && make -j"))
 
-(unless (file-exists-p "~/.emacs.d/.lsp/ccls/build/ccls")
-  (my-compile-ccls-server))
+;; (unless (file-exists-p "~/.emacs.d/.lsp/ccls/build/ccls")
+;;   (my-compile-ccls-server))
 
-(use-package ccls
-  :ensure t
-  :init
-  (setenv "CPLUS_INCLUDE_PATH" "/opt/ros/noetic/include")
-  :config
-  (setq ccls-executable "~/.emacs.d/.lsp/ccls/build/ccls")
-  :hook ((c-mode c++-mode objc-mode) .
-         (lambda () (require 'ccls) (lsp))))
+;; (use-package ccls
+;;   :ensure t
+;;   :init
+;;   (setenv "CPLUS_INCLUDE_PATH" "/opt/ros/noetic/include")
+;;   :config
+;;   (setq ccls-executable "~/.emacs.d/.lsp/ccls/build/ccls")
+;;   :hook ((c-mode c++-mode objc-mode) .
+;;          (lambda () (require 'ccls) (lsp))))
+
+;; create c++ hook for starting lsp
+(defun my-cpp-lsp-hook ()
+  (require 'lsp)
+  (lsp))
+
+(add-hook 'c++-mode-hook 'my-cpp-lsp-hook)
+(add-hook 'c++-ts-mode-hook 'my-cpp-lsp-hook)
+
 
 (defun my-cpp-link-compile-commands ()
   (unless (file-exists-p (concat projectile-cached-project-root "compile-commands.json"))
@@ -1189,7 +1264,7 @@ or creates new session. Optionally, BUFFER-NAME can be set"
                "<!--"
                sgml-skip-tag-forward
                nil))
-(add-hook 'nxml-mode-hook 'hs-minor-mode)
+;; (add-hook 'nxml-mode-hook 'hs-minor-mode)
 
 ;;; Web Technologies
 (use-package web-mode
@@ -1201,12 +1276,12 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 (add-to-list 'auto-mode-alist '("\\.heex\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
 
-(setq js-switch-indent-offset 4)
+(setq js-indent-level 2)
+(setq js-switch-indent-offset 2)
 (setq web-mode-engines-alist
       '(("hugo" . ".*hugo.*html\\'")
         ("elixir" . "\\.heex\\'")))
 (setq web-mode-enable-auto-closing t)
-(setq js-indent-level 4)
 (add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
 
 (defun my-rjsx-hook ()
@@ -1219,6 +1294,14 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   ;; :ensure t
   ;; :init
   ;; (add-to-list 'company-backends 'company-tern))
+
+;;; Yaml Mode
+(use-package yaml
+  :ensure t)
+
+;;; Toml Mode
+(use-package toml-mode
+  :ensure t)
 
 ;;; Markdown Mode
 (use-package markdown-mode
