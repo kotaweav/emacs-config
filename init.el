@@ -96,6 +96,9 @@
              (abbrev-mode nil "abbrev"))))
 
 ;;; General Configuration
+
+(global-unset-key (kbd "C-x C-c"))
+
 (setq gc-cons-threshold 100000000)
 (setq read-process-output-max (* 1024 1024))
 
@@ -273,6 +276,20 @@
 
 (define-key eyebrowse-mode-map (kbd "C-<") 'my/move-ws-left)
 (define-key eyebrowse-mode-map (kbd "C->") 'my/move-ws-right)
+
+; stolen from https://emacs.stackexchange.com/questions/31646/how-to-paste-with-indent
+(defun yank-with-indent ()
+  (interactive)
+  (let ((indent
+         (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+    (message indent)
+    (yank)
+    (save-excursion
+      (save-restriction
+        (narrow-to-region (mark t) (point))
+        (pop-to-mark-command)
+        (replace-string "\n" (concat "\n" indent))
+        (widen)))))
 
 ;; (use-package hideshowvis
   ;; :ensure t)
@@ -849,6 +866,8 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   (org-indent-mode t)
   (org-download-enable)
   (setq org-confirm-babel-evaluate nil)
+  (define-key evil-insert-state-map (kbd "S-<left>") nil)
+  (define-key evil-insert-state-map (kbd "S-<right>") nil)
   (local-set-key [?\s-e] 'org-latex-export-to-pdf))
 (add-hook 'org-mode-hook 'my/org-mode-hook)
 
