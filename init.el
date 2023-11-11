@@ -158,7 +158,7 @@
         (forward-char)
         (delete-region (point-min) (point))
         (write-file filename))
-        (kill-buffer (current-buffer))))
+        (kill-buffer buffer)))
 
 ;; (use-package dtrt-indent
   ;; :ensure t
