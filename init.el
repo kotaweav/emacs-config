@@ -147,6 +147,19 @@
    create-lockfiles nil
    version-control t) ; use versioned backups  
 
+(defun download-file-to-directory (url filename)
+  (interactive (list (read-string "URL: ")
+                     (read-string "File name: ")))
+    (let ((buffer (url-retrieve-synchronously url)))
+        (save-excursion
+        (set-buffer buffer)
+        (goto-char (point-min))
+        (re-search-forward "^$" nil 'move)
+        (forward-char)
+        (delete-region (point-min) (point))
+        (write-file filename))
+        (kill-buffer (current-buffer))))
+
 ;; (use-package dtrt-indent
   ;; :ensure t
   ;; :config
@@ -1150,6 +1163,7 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 ;;          (lambda () (require 'ccls) (lsp))))
 
 ;; create c++ hook for starting lsp
+(setq gdb-many-windows t)
 (defun my-cpp-lsp-hook ()
   (require 'lsp)
   (lsp))
