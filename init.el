@@ -938,6 +938,7 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 (helm-projectile-on)
 (use-package helm-ag
   :ensure t)
+(global-set-key (kbd "C-s-S") 'helm-ag-project-root)
 
 (skeletor-define-template "basic-cpp"
   :title "Basic C++ Project"
