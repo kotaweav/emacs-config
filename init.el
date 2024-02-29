@@ -321,7 +321,25 @@
   :config
   (global-origami-mode))
 
-(global-set-key (kbd "s-f") 'make-frame)
+(defun my/make-frame-on-monitor ()
+  (interactive)
+                                        ; run transparent_window.py in the background
+  (let
+      ((display-buffer-alist
+        (list
+         (cons
+          "\\*Async Shell Command\\*"
+          (cons #'display-buffer-no-window nil))))
+       (default-frame-alist (cl-pushnew '(fullscreen . maximized) default-frame-alist)))
+    (unwind-protect
+        (progn
+          (async-shell-command "python3 ~/.emacs.d/scripts/transparent_window.py" nil nil)
+          (call-interactively 'make-frame-on-monitor))
+      (progn
+        (set-process-query-on-exit-flag (get-buffer-process "*Async Shell Command*") nil)
+        (kill-buffer "*Async Shell Command*")))))
+
+(global-set-key (kbd "s-f") 'my/make-frame-on-monitor)
 
 (put 'dired-find-alternate-file 'disabled nil)
 (setq dired-dwim-target t)
