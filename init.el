@@ -1694,3 +1694,11 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 (global-set-key (kbd "<XF86Launch8>") 'copilot-accept-completion) ; f17
 (global-set-key (kbd "<XF86LaunchA>") 'transient-global-bindings) ; f19
 (global-set-key (kbd "C-c o") 'transient-org-bindings)
+
+(use-package casual
+  :ensure t
+  :bind (:map calc-mode-map ("?" . 'casual-main-menu)))
+
+(use-package casual-dired
+  :ensure t
+  :bind (:map dired-mode-map ("?" . 'casual-dired-tmenu)))
