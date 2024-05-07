@@ -125,6 +125,8 @@
 (global-set-key (kbd "C-s-o") 'other-window)
 (global-set-key (kbd "C-s-p") (lambda () (interactive) (other-window -1)))
 
+(setq ediff-split-window-function 'split-window-horizontally)
+
 (use-package diff-hl
   :ensure t
   :config
@@ -164,6 +166,11 @@
   ;; :ensure t
   ;; :config
   ;; (dtrt-indent-global-mode))
+
+(use-package bpr
+  :ensure t
+  :config
+  (setq bpr-show-progress nil))
 
 (use-package undo-tree
   :ensure t)
@@ -688,6 +695,7 @@ parent frame."
    (plantuml . t)
    (ruby . t)
    (shell . t)
+   (elixir . t)
    (latex . t)))
 (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
 (setq org-image-actual-width 800)
@@ -921,7 +929,8 @@ or creates new session. Optionally, BUFFER-NAME can be set"
                \\usepackage{fancyvrb}
                \\usepackage{xcolor}
                \\definecolor{LightGray}{gray}{0.9}
-               \\usepackage[bgcolor=LightGray]{minted}
+               %% \\usepackage[bgcolor=LightGray]{minted}
+               \\usepackage{minted}
                \\usemintedstyle{monokai}
                \\presetkeys{bclogo}{ombre=true,epBord=3,couleur = blue!15!white,couleurBord = red,arrondi = 0.2,logo=\bctrombone}{}
                \\usetikzlibrary{patterns}
@@ -934,6 +943,7 @@ or creates new session. Optionally, BUFFER-NAME can be set"
                ("\\paragraph{%s}" . "\\paragraph*{%s}")
                ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
+(setq org-latex-default-class "hitec")
 (use-package ox-hugo
   :ensure t
   :after ox)
@@ -956,7 +966,7 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 (helm-projectile-on)
 (use-package helm-ag
   :ensure t)
-(global-set-key (kbd "C-s-S") 'helm-ag-project-root)
+(global-set-key (kbd "C-s-S") 'helm-projectile-ag)
 
 (skeletor-define-template "basic-cpp"
   :title "Basic C++ Project"
@@ -1106,6 +1116,35 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   :ensure t
   :bind ("s-." . lsp-ui-peek-find-references))
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+
+;; (defun lsp-booster--advice-json-parse (old-fn &rest args)
+;;   "Try to parse bytecode instead of json."
+;;   (or
+;;    (when (equal (following-char) ?#)
+;;      (let ((bytecode (read (current-buffer))))
+;;        (when (byte-code-function-p bytecode)
+;;          (funcall bytecode))))
+;;    (apply old-fn args)))
+;; (advice-add (if (progn (require 'json)
+;;                        (fboundp 'json-parse-buffer))
+;;                 'json-parse-buffer
+;;               'json-read)
+;;             :around
+;;             #'lsp-booster--advice-json-parse)
+
+;; (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+;;   "Prepend emacs-lsp-booster command to lsp CMD."
+;;   (let ((orig-result (funcall old-fn cmd test?)))
+;;     (if (and (not test?)                             ;; for check lsp-server-present?
+;;              (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+;;              lsp-use-plists
+;;              (not (functionp 'json-rpc-connection))  ;; native json-rpc
+;;              (executable-find "emacs-lsp-booster"))
+;;         (progn
+;;           (message "Using emacs-lsp-booster for %s!" orig-result)
+;;           (cons "emacs-lsp-booster" orig-result))
+;;       orig-result)))
+;; (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 
 ;;; Compilation Mode
 (require 'ansi-color)
@@ -1441,7 +1480,7 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   (cond ((equal musicplayer-backend "roon") (roon-previous))
         ((equal musicplayer-backend "spotify") (spotify-previous))))
 
-(setq musicplayer-backend "roon")
+(setq musicplayer-backend "spotify")
 
 (defun music-set-backend-roon()
   (interactive)
