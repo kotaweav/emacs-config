@@ -353,6 +353,14 @@
 (setq dired-mouse-drag-files t)
 ;(set-face-foreground 'dired-directory "aqua") ;
 
+(use-package openwith
+  :ensure t
+  :config
+  (setq openwith-associations
+        '(("\\.\\(mp4\\|mp3\\|webm\\|avi\\|flv\\|mov\\mkv\\)$"
+           "xdg-open" (file))))
+  (openwith-mode +1))
+
 (use-package helm
   :ensure t)
 ;(require 'helm-config) ; helm-config is part of the helm package
