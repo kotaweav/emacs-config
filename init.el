@@ -1123,6 +1123,8 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 (use-package lsp-ui
   :ensure t
   :bind ("s-." . lsp-ui-peek-find-references))
+(define-key lsp-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+(define-key lsp-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
 (add-hook 'lsp-mode-hook 'lsp-ui-mode)
 
 ;; (defun lsp-booster--advice-json-parse (old-fn &rest args)
