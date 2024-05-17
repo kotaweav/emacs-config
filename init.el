@@ -55,6 +55,11 @@
   :ensure t)
 (use-package all-the-icons
   :ensure t)
+(use-package nerd-icons-dired
+  :ensure t
+  :config
+  (add-hook 'dired-mode-hook 'nerd-icons-dired-mode))
+
 (use-package doom-modeline
   :ensure t
   :init (doom-modeline-mode 1)
@@ -351,13 +356,14 @@
 (put 'dired-find-alternate-file 'disabled nil)
 (setq dired-dwim-target t)
 (setq dired-mouse-drag-files t)
-;(set-face-foreground 'dired-directory "aqua") ;
+(set-face-foreground 'dired-directory "aqua")
+(setq dired-listing-switches "-lh")
 
 (use-package openwith
   :ensure t
   :config
   (setq openwith-associations
-        '(("\\.\\(mp4\\|mp3\\|webm\\|avi\\|flv\\|mov\\mkv\\)$"
+        '(("\\.\\(mp4\\|mp3\\|webm\\|avi\\|flv\\|mov\\mkv\\wav\\xlsx\\doc\\deb\\)$"
            "xdg-open" (file))))
   (openwith-mode +1))
 
