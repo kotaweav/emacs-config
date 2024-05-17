@@ -1347,6 +1347,10 @@ or creates new session. Optionally, BUFFER-NAME can be set"
                           (setq lsp-python-ms-extra-paths ["/opt/ros/melodic/lib/python2.7/dist-packages"])
                           (lsp))))  ; or lsp-deferred
 
+; python executable tracker
+(use-package pet
+  :config
+  (add-hook 'python-base-mode-hook 'pet-mode -10))
 
 
 ;; (use-package lsp-pyright
