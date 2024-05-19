@@ -1438,6 +1438,14 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 (add-to-list 'auto-mode-alist '("\\.launch\\'" . nxml-mode))
 
 ;;; Media and Entertainment
+(defun spotify ()
+  (interactive)
+  (if (not (get-process "spotify"))
+      (start-process "spotify" nil "spotify")
+    (let* ((bpr-close-after-success t)
+           (bpr-show-progress nil))
+      (bpr-spawn "xdotool search --onlyvisible --class spotify windowactivate"))))
+
 (defun spotify-toggle-play-pause ()
   (interactive)
   (dbus-call-method-asynchronously
