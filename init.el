@@ -562,6 +562,9 @@ parent frame."
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "C-x b") 'helm-mini)
 
+(use-package helm-system-packages
+  :ensure t)
+
 (use-package direnv
   :ensure t
   :config
