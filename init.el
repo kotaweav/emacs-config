@@ -1655,28 +1655,52 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   (kill-buffer "rviz-process")
   (kill-buffer "rosbag-process"))
 
+;;; Webkit Browser
+
+(evil-set-initial-state 'xwidget-webkit-mode 'emacs)
+(define-key xwidget-webkit-mode-map (kbd "/") 'xwidget-webkit-isearch-mode)
+(define-key xwidget-webkit-mode-map (kbd "M-w") 'xwidget-webkit-copy-selection-as-kill)
+(define-key xwidget-webkit-mode-map (kbd "<XF86Launch5>") 'xwidget-webkit-copy-selection-as-kill)
+(define-key xwidget-webkit-mode-map (kbd "M-<left>") 'xwidget-webkit-back)
+(define-key xwidget-webkit-mode-map (kbd "M-<right>") 'xwidget-webkit-forward)
+
+;; (define-key xwidget-webkit-mode-map (kbd "n") '
+
 ;;; Transient
 
 (use-package transient
   :ensure t)
 
 (transient-define-prefix transient-org-find-bindings ()
-  [("f" "find from all nodes" (lambda () (interactive) (org-roam-node-find)))]
-  [("w" "find from work nodes" (lambda () (interactive) (org-roam-node-find t nil 'my/org-roam-work-only)))]
-  [("p" "find from personal nodes" (lambda () (interactive) (org-roam-node-find t nil 'my/org-roam-personal-only)))]
-  [("i" "find from web nodes" (lambda () (interactive) (org-roam-node-find t nil 'my/org-roam-web-only)))])
+  [("f" "find from all nodes" (lambda () (interactive) (org-roam-node-find)))
+   ("w" "find from work nodes" (lambda () (interactive) (org-roam-node-find t nil 'my/org-roam-work-only)))
+   ("p" "find from personal nodes" (lambda () (interactive) (org-roam-node-find t nil 'my/org-roam-personal-only)))
+   ("i" "find from web nodes" (lambda () (interactive) (org-roam-node-find t nil 'my/org-roam-web-only)))])
 
 (transient-define-prefix transient-org-bindings ()
   "Org Interface"
-  [("i" "insert roam node" (lambda () (interactive) (org-roam-node-insert)))]
-  [("f" "find roam node" (lambda () (interactive) (transient-org-find-bindings)))]
-  [("l" "list org roam" (lambda () (interactive) (org-roam-buffer-toggle)))]
-  [("u" "org roam ui" (lambda ()
+  [("i" "insert roam node" (lambda () (interactive) (org-roam-node-insert)))
+   ("f" "find roam node" (lambda () (interactive) (transient-org-find-bindings)))
+   ("l" "list org roam" (lambda () (interactive) (org-roam-buffer-toggle)))
+   ("u" "org roam ui" (lambda ()
                         (interactive)
                         (unless org-roam-ui-mode (org-roam-ui-mode))
-                        (org-roam-toggle-ui-xwidget)))]
-  [("c" "copy org to clipboard" (lambda () (interactive) (copy-org-to-clipboard)))]
-  [("s" "org sort" (lambda () (interactive) (org-sort)))])
+                        (org-roam-toggle-ui-xwidget)))
+   ("c" "copy org to clipboard" (lambda () (interactive) (copy-org-to-clipboard)))
+   ("s" "org sort" (lambda () (interactive) (org-sort)))])
+
+(defun search-google ()
+  (interactive)
+  (if (region-active-p)
+      (let ((search-term (url-hexify-string (buffer-substring (region-beginning) (region-end)))))
+        (xwidget-webkit-browse-url (concat "https://www.google.com/search?q=" search-term))))
+    (let ((search-term (url-hexify-string (read-string "Search Google: "))))
+        (xwidget-webkit-browse-url (concat "https://www.google.com/search?q=" search-term))))
+
+(transient-define-prefix transient-web-bindings ()
+  "Web Interface"
+  [("b" "browse url" (lambda () (interactive) (call-interactively 'xwidget-webkit-browse-url)))
+   ("s" "search google" (lambda () (interactive) (search-google)))])
 
 ; taken from https://emacs.stackexchange.com/questions/41016/how-can-i-yank-images-from-emacs
 (defun x11-yank-image-at-point-as-image ()
@@ -1703,17 +1727,19 @@ or creates new session. Optionally, BUFFER-NAME can be set"
       (message "Point is not at an image."))))
 
 (transient-define-prefix transient-file-bindings ()
-  [("p" "copy file path to clipboard" (lambda () (interactive) (kill-new buffer-file-name)))]
-  [("i" "copy current image" (lambda () (interactive) (x11-yank-image-at-point-as-image)))])
+  [("p" "copy file path to clipboard" (lambda () (interactive) (kill-new buffer-file-name)))
+   ("i" "copy current image" (lambda () (interactive) (x11-yank-image-at-point-as-image)))])
 
 (transient-define-prefix transient-global-bindings ()
   "Global Interface"
-  [("o" "org mode" (lambda () (interactive) (transient-org-bindings)))]
-  [("f" "file operations" (lambda () (interactive) (transient-file-bindings)))])
+  [("o" "org mode" (lambda () (interactive) (transient-org-bindings)))
+   ("f" "file operations" (lambda () (interactive) (transient-file-bindings)))
+   ("w" "web operations" (lambda () (interactive) (transient-web-bindings)))])
 
 (global-set-key (kbd "<XF86Launch8>") 'copilot-accept-completion) ; f17
 (global-set-key (kbd "<XF86LaunchA>") 'transient-global-bindings) ; f19
 (global-set-key (kbd "C-c o") 'transient-org-bindings)
+(global-set-key (kbd "C-S-<iso-lefttab>") 'transient-global-bindings)
 
 (use-package casual
   :ensure t
