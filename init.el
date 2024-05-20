@@ -105,6 +105,10 @@
 (global-unset-key (kbd "C-x C-c"))
 
 (setq gc-cons-threshold 100000000)
+(use-package gcmh
+    :ensure t
+    :config
+    (gcmh-mode 1))
 (setq read-process-output-max (* 1024 1024))
 
 (use-package exec-path-from-shell
