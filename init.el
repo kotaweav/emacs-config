@@ -1682,13 +1682,23 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 ;;; Webkit Browser
 
 (evil-set-initial-state 'xwidget-webkit-mode 'emacs)
-(define-key xwidget-webkit-mode-map (kbd "/") 'xwidget-webkit-isearch-mode)
-(define-key xwidget-webkit-mode-map (kbd "M-w") 'xwidget-webkit-copy-selection-as-kill)
-(define-key xwidget-webkit-mode-map (kbd "<XF86Launch5>") 'xwidget-webkit-copy-selection-as-kill)
-(define-key xwidget-webkit-mode-map (kbd "M-<left>") 'xwidget-webkit-back)
-(define-key xwidget-webkit-mode-map (kbd "M-<right>") 'xwidget-webkit-forward)
 
-;; (define-key xwidget-webkit-mode-map (kbd "n") '
+(defun my/xwidget-webkit-mode-hook ()
+  (define-key xwidget-webkit-mode-map (kbd "/") 'xwidget-webkit-isearch-mode)
+  (define-key xwidget-webkit-mode-map (kbd "M-w") 'xwidget-webkit-copy-selection-as-kill)
+  (define-key xwidget-webkit-mode-map (kbd "<XF86Launch5>") 'xwidget-webkit-copy-selection-as-kill)
+  (define-key xwidget-webkit-mode-map (kbd "M-<left>") 'xwidget-webkit-back)
+  (define-key xwidget-webkit-mode-map (kbd "M-<right>") 'xwidget-webkit-forward))
+
+(add-hook 'xwidget-webkit-mode-hook 'my/xwidget-webkit-mode-hook)
+
+;;; proced
+(setq proced-auto-update-flag t)
+(setq proced-auto-update-interval 1)
+(setq proced-enable-color-flag t)
+(defun proced-mode-hook ()
+  (define-key proced-mode-map (kbd "a") 'proced-toggle-auto-update))
+(add-hook 'proced-mode-hook 'proced-mode-hook)
 
 ;;; Transient
 
