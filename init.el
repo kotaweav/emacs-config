@@ -931,6 +931,15 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   (local-set-key [?\s-e] 'org-latex-export-to-pdf))
 (add-hook 'org-mode-hook 'my/org-mode-hook)
 
+(setq org-todo-keywords
+      '((seqeunce "TODO" "STARTED" "PAUSED" "|" "DONE" "CANCELED")))
+(setq org-todo-keyword-faces
+      '(("TODO" . "white smoke")
+        ("STARTED" . "SeaGreen1")
+        ("PAUSED" . "pink1")
+        ("DONE" . "SteelBlue1")
+        ("CANCELED" . "grey58")))
+
 (require 'ox-latex)
 (setq org-latex-pdf-process
       '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
