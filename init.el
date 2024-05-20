@@ -1768,7 +1768,9 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   "Global Interface"
   [("o" "org mode" (lambda () (interactive) (transient-org-bindings)))
    ("f" "file operations" (lambda () (interactive) (transient-file-bindings)))
-   ("w" "web operations" (lambda () (interactive) (transient-web-bindings)))])
+   ("w" "web operations" (lambda () (interactive) (transient-web-bindings)))
+   ("p" "proced" (lambda () (interactive) (proced)))
+   ("s" "spotify" (lambda () (interactive) (spotify)))])
 
 (global-set-key (kbd "<XF86Launch8>") 'copilot-accept-completion) ; f17
 (global-set-key (kbd "<XF86LaunchA>") 'transient-global-bindings) ; f19
