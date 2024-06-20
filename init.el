@@ -20,6 +20,17 @@
 (setq treesit-auto-install 'prompt)
 (setq treesit-font-lock-level 4)
 
+(defun treesit-reindent()
+  (interactive)
+  ; if no selection, reindent the whole buffer. otherwise, reindent the selection.
+  (if (use-region-p)
+      (treesit-indent-region (region-beginning) (region-end))
+      (treesit-indent-region (point-min) (point-max)))
+  )
+
+                                        ; map the reindent function to a key
+(global-set-key (kbd "C-M-\\") 'treesit-reindent)
+
 (require 'cl) ; to compensate for a bug in prog-mode in Emacs 24.5
 
 ;; set local package locations
