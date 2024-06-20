@@ -1210,7 +1210,25 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 (setq-default c-doc-comment-style 'javadoc)
 (setq-default c-block-comment-prefix "* ")
 
-(setq-default c-ts-mode-indent-offset 4)
+; stolen from https://www.reddit.com/r/emacs/comments/16zhgrd/comment/k4aw2yi/?utm_source=share&utm_medium=web2x&context=3
+(defun my/c-ts-indent-style()
+  `(
+    ;; align function arguments to the start of the first one, offset if standalone
+    ((match nil "argument_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
+    ((parent-is "argument_list") (nth-sibling 1) 0)
+    ;; same for parameters
+    ((match nil "parameter_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
+    ((parent-is "parameter_list") (nth-sibling 1) 0)
+    ;; indent inside case blocks
+    ((parent-is "case_statement") standalone-parent c-ts-mode-indent-offset)
+    ;; do not indent preprocessor statements
+    ((node-is "preproc") column-0 0)
+    ;; do not indent children of namespaces
+    ((n-p-gp nil nil "namespace_definition") grand-parent 0)
+    ;; append to bsd style
+    ,@(alist-get 'bsd (c-ts-mode--indent-styles 'cpp))))
+
+(setq c-ts-mode-indent-style 'my/c-ts-indent-style)
 
 (setq ff-search-directories
       '("." "../src" "../include"))
