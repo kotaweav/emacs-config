@@ -372,7 +372,7 @@
 (setq dired-dwim-target t)
 (setq dired-mouse-drag-files t)
 (set-face-foreground 'dired-directory "aqua")
-(setq dired-listing-switches "-lh")
+(setq dired-listing-switches "-lha")
 
 (use-package openwith
   :ensure t
