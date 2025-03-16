@@ -28,6 +28,15 @@
       (treesit-indent-region (point-min) (point-max)))
   )
 
+(defun treesit-auto-indentation-level()
+  (interactive)
+                                        ; get the number of spaces for indentation in the current buffer
+                                        ; get current treesit node
+  (let ((node (treesit-node-at (point))))
+    (if node
+        (progn
+          (message "has node")))))
+          
                                         ; map the reindent function to a key
 (global-set-key (kbd "C-M-\\") 'treesit-reindent)
 
@@ -152,6 +161,14 @@
   :config
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode))
+
+(use-package ultra-scroll
+  :ensure t
+  :init
+  (setq scroll-conservatively 101 ; important!
+        scroll-margin 0) 
+  :config
+  (ultra-scroll-mode 1))
 
 (use-package drag-stuff
   :ensure t)
@@ -605,6 +622,7 @@ parent frame."
 (add-to-list 'load-path "~/.emacs.d/.vterm/emacs-libvterm")
 (require 'vterm)
 (add-to-list 'evil-emacs-state-modes 'vterm-mode)
+(set 'vterm-max-scrollback 10000)
 (use-package multi-vterm
          :ensure t)
 
@@ -754,7 +772,7 @@ parent frame."
         (progn
           (centered-window-mode-toggle)))))
 
-(add-hook 'window-configuration-change-hook 'centered-window-on-switch)
+;; (add-hook 'window-configuration-change-hook 'centered-window-on-switch)
 
 (defun toggle-centered-window ()
   (interactive)
@@ -791,8 +809,8 @@ parent frame."
                 (forward-line 1)))))
         (clipboard-kill-region (point-min) (point-max))))))
 
-(use-package emacsql-sqlite-builtin
-  :ensure t)
+
+
 (use-package org-roam
   :ensure t
   :init
@@ -933,7 +951,6 @@ or creates new session. Optionally, BUFFER-NAME can be set"
   :ensure t)
 (defun my/org-mode-hook ()
   (visual-line-mode)
-  (toggle-centered-window)
   (org-indent-mode t)
   (org-download-enable)
   (setq org-confirm-babel-evaluate nil)
@@ -1022,7 +1039,6 @@ or creates new session. Optionally, BUFFER-NAME can be set"
       (call-interactively 'compile)
     (call-interactively 'projectile-compile-project))
   )
-(global-set-key (kbd "<f5>") 'my/compile)
 
 
 ;; send notifications for compilation success and failure
@@ -1038,6 +1054,38 @@ or creates new session. Optionally, BUFFER-NAME can be set"
        :app-icon "~/.emacs.d/resources/icons/cross.png"))
   (cons msg code))
 (setq compilation-exit-message-function 'my/compilation-finish-function)
+
+(defun my/switch-to-compilation-buffer-and-remove-hook (frame)
+  (message "switching to compilation buffer")
+                                        ; make sure we're not in a helm buffer (starts with HELM)
+  (message (buffer-name))
+  (if (not (string-prefix-p "HELM" (buffer-name)))
+      (progn
+        (select-frame-set-input-focus frame)
+        (switch-to-buffer (get-buffer-create "*compilation*"))
+        (message "switched to compilation buffer")
+        (remove-hook 'after-make-frame-functions 'my/switch-to-compilation-buffer-and-remove-hook)))
+  )
+
+(defun my/make-compilation-frame-on-monitor ()
+  (interactive)
+  (add-hook 'after-make-frame-functions 'my/switch-to-compilation-buffer-and-remove-hook)
+  (call-interactively 'my/make-frame-on-monitor))
+
+(defun my/compile-in-current-or-new-frame ()
+  (interactive)
+  (let ((orig-frame (selected-frame)))
+    (if (or (get-buffer "*compilation*") (eql (length (display-monitor-attributes-list)) 1))
+        (progn
+          (select-frame-set-input-focus orig-frame)
+          (call-interactively 'my/compile))
+      (progn
+        (call-interactively 'my/make-compilation-frame-on-monitor)
+        (select-frame-set-input-focus orig-frame)
+        (call-interactively 'my/compile)))))
+
+
+(global-set-key (kbd "<f5>") 'my/compile-in-current-or-new-frame)
 
 (defun my/run ()
   (interactive)
@@ -1224,22 +1272,41 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 ; stolen from https://www.reddit.com/r/emacs/comments/16zhgrd/comment/k4aw2yi/?utm_source=share&utm_medium=web2x&context=3
 (defun my/c-ts-indent-style()
   `(
-    ;; align function arguments to the start of the first one, offset if standalone
-    ((match nil "argument_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
-    ((parent-is "argument_list") (nth-sibling 1) 0)
-    ;; same for parameters
     ((match nil "parameter_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
+    ((n-p-gp ")" "parameter_list" nil) great-grand-parent 0)
     ((parent-is "parameter_list") (nth-sibling 1) 0)
-    ;; indent inside case blocks
-    ((parent-is "case_statement") standalone-parent c-ts-mode-indent-offset)
-    ;; do not indent preprocessor statements
+
+    ((node-is "case_statement") grand-parent 0)
+    ((parent-is "case_statement") parent-bol c-ts-mode-indent-offset)
+
     ((node-is "preproc") column-0 0)
-    ;; do not indent children of namespaces
+
     ((n-p-gp nil nil "namespace_definition") grand-parent 0)
-    ;; append to bsd style
+
+    ((match nil "argument_list" nil 0 1) great-grand-parent c-ts-mode-indent-offset)
+    ((parent-is "argument_list") (nth-sibling 1) 0)
+
+    ((n-p-gp "}" "compound_statement" "lambda_expression") parent-bol 0)
+    ((n-p-gp nil "compound_statement" "lambda_expression") parent-bol c-ts-mode-indent-offset)
+
+    ((n-p-gp "}" "compound_statement" nil) grand-parent 0)
+    ((parent-is "compound_statement") grand-parent c-ts-mode-indent-offset)
+
+    ((match nil "for_statement" "initializer" nil nil) parent-bol c-ts-mode-indent-offset)
+    ((parent-is "for_statement") (nth-sibling 0 1) 0)
+
+    ((match nil "initializer_list" nil 1 nil) prev-sibling 0)
+    ((node-is "initializer_list") parent-bol c-ts-mode-indent-offset)
+
     ,@(alist-get 'bsd (c-ts-mode--indent-styles 'cpp))))
 
 (setq c-ts-mode-indent-style 'my/c-ts-indent-style)
+(defun set-indent-level(indent-level)
+  (interactive "nIndent level: ")
+  (setq c-basic-offset indent-level)
+  (setq tab-width indent-level)
+  (setq c-ts-mode-indent-offset indent-level)
+  (setq c-indent-level indent-level))
 
 (setq ff-search-directories
       '("." "../src" "../include"))
@@ -1338,27 +1405,6 @@ or creates new session. Optionally, BUFFER-NAME can be set"
 ;;; Rust Mode
 (use-package rust-mode
   :ensure t)
-
-;;; Go Mode
-(use-package go-mode
-  :ensure t)
-
-(use-package company-go
-  :init
-  (setenv "GOPATH" (expand-file-name (concat "~/.emacs.d" "/gopkgs")))
-  (unless (executable-find "gocode") (shell-command "go get -u github.com/nsf/gocode"))
-  (setq company-go-gocode-command (expand-file-name "~/.emacs.d/gopkgs/bin/gocode"))
-  :ensure t)
-(add-hook 'go-mode-hook
-          (lambda ()
-            (set (make-local-variable 'company-backends) '(company-go))
-            (company-mode)))
-
-(unless (executable-find "gocode") (shell-command "go get golang.org/x/tools/gopls@latest"))
-(setq exec-path (append exec-path '("~/.emacs.d/gopkgs/bin")))
-(use-package flycheck-golangci-lint
-  :ensure t
-  :hook (go-mode . flycheck-golangci-lint-setup))
 
 ;;; Ruby Mode
 (use-package rvm
